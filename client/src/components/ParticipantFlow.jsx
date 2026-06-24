@@ -3,12 +3,13 @@ import { useStore } from '../store';
 import { socket } from '../socket';
 
 export default function ParticipantFlow() {
-  const { sessionCode, teamInfo, teams, sessionState, pretestData, setSessionCode, setTeamInfo, setTeams, setSessionState, setPretestData } = useStore();
+  const { sessionCode, teamInfo, teams, sessionState, pretestData, quizData, setSessionCode, setTeamInfo, setTeams, setSessionState, setPretestData, setQuizData } = useStore();
   const [inputSession, setInputSession] = useState('');
   const [inputTeam, setInputTeam] = useState('');
   const [activeTab, setActiveTab] = useState('material');
   const [reasoning, setReasoning] = useState('');
   const [selectedPretestAnswer, setSelectedPretestAnswer] = useState(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   useEffect(() => {
     socket.on('team_joined', ({ sessionCode, team }) => {
@@ -41,12 +42,22 @@ export default function ParticipantFlow() {
       setSelectedPretestAnswer(null); // Reset choice on new question
     });
 
+    socket.on('quiz_question_update', (data) => {
+      setQuizData(data);
+      if (data.question.mediaType === 'video' && data.question.mediaUrl) {
+        setIsVideoPlaying(true);
+      } else {
+        setIsVideoPlaying(false);
+      }
+    });
+
     return () => {
       socket.off('team_joined');
       socket.off('teams_assigned');
       socket.off('readiness_update');
       socket.off('session_state_update');
       socket.off('pretest_question_update');
+      socket.off('quiz_question_update');
     };
   }, [teamInfo]);
 
@@ -190,15 +201,41 @@ export default function ParticipantFlow() {
                 </button>
               </div>
             </div>
-          ) : (
+          ) : quizData && isVideoPlaying && quizData.question.mediaType === 'video' ? (
+            <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
+              <h3 style={{ color: 'var(--accent)', marginBottom: '1rem' }}>Watch the Video carefully!</h3>
+              <p style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>The question will appear automatically after the video finishes.</p>
+              <video 
+                src={quizData.question.mediaUrl} 
+                autoPlay 
+                controls 
+                onEnded={() => setIsVideoPlaying(false)}
+                style={{ width: '100%', borderRadius: '12px', border: '1px solid var(--primary)' }}
+              />
+              <button className="btn btn-secondary" onClick={() => setIsVideoPlaying(false)} style={{ marginTop: '1rem' }}>Skip Video (Debug)</button>
+            </div>
+          ) : quizData ? (
             <div className="card" style={{ padding: '2rem' }}>
-              <h3 style={{ color: 'var(--accent)' }}>Question 1</h3>
-              <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>Why is Socket.io used in this application instead of traditional HTTP polling?</p>
+              <h3 style={{ color: 'var(--accent)' }}>Question {quizData.index + 1}</h3>
+              
+              {quizData.question.mediaType === 'image' && quizData.question.mediaUrl && (
+                <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+                  <img 
+                    src={quizData.question.mediaUrl} 
+                    alt="Question Media" 
+                    style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: '12px', border: '1px solid var(--primary)' }} 
+                  />
+                </div>
+              )}
+
+              <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>{quizData.question.question}</p>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '2rem' }}>
-                <button className="btn btn-secondary" style={{ textAlign: 'left' }}>A. It relies entirely on MongoDB to push updates</button>
-                <button className="btn btn-secondary" style={{ textAlign: 'left' }}>B. It provides event-based, low-latency bi-directional synchronization</button>
-                <button className="btn btn-secondary" style={{ textAlign: 'left' }}>C. It is the only way to style React components dynamically</button>
+                {Object.entries(quizData.question.options).map(([key, value]) => (
+                  <button key={key} className="btn btn-secondary" style={{ textAlign: 'left' }}>
+                    {key}. {value}
+                  </button>
+                ))}
               </div>
 
               <h4>Reasoning (Required)</h4>
@@ -218,6 +255,10 @@ export default function ParticipantFlow() {
               >
                 Submit Team Answer
               </button>
+            </div>
+          ) : (
+            <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
+              Loading Quiz Question...
             </div>
           )}
         </div>

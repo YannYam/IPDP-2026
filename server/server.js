@@ -54,6 +54,29 @@ const PRETEST_QUESTIONS = [
   }
 ];
 
+const POSTTEST_QUESTIONS = [
+  {
+    mediaUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+    mediaType: "video",
+    question: "Based on the video, why is Socket.io used in this application instead of traditional HTTP polling?",
+    options: {
+      A: "It relies entirely on MongoDB to push updates",
+      B: "It provides event-based, low-latency bi-directional synchronization",
+      C: "It is the only way to style React components dynamically"
+    }
+  },
+  {
+    mediaUrl: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800",
+    mediaType: "image",
+    question: "Based on the React logo above, which of the following is true?",
+    options: {
+      A: "React uses a virtual DOM",
+      B: "React is a backend framework",
+      C: "React only supports class components"
+    }
+  }
+];
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
@@ -211,8 +234,14 @@ io.on('connection', (socket) => {
       const allReady = sessions[sessionCode].teams.every(t => t.isReady);
       if (allReady) {
         sessions[sessionCode].state = 'quiz';
+        sessions[sessionCode].currentQuizIndex = 0;
         io.to(sessionCode).emit('quiz_started');
         io.to(sessionCode).emit('session_state_update', 'quiz');
+        io.to(sessionCode).emit('quiz_question_update', {
+          index: 0,
+          total: POSTTEST_QUESTIONS.length,
+          question: POSTTEST_QUESTIONS[0]
+        });
       } else {
         socket.emit('error', 'Not all teams are ready');
       }
