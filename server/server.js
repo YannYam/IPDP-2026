@@ -4,6 +4,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,6 +17,9 @@ const io = new Server(server, {
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the React frontend app
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // In-memory store for quick lookups
 const sessions = {}; 
@@ -63,7 +67,8 @@ const POSTTEST_QUESTIONS = [
       A: "It relies entirely on MongoDB to push updates",
       B: "It provides event-based, low-latency bi-directional synchronization",
       C: "It is the only way to style React components dynamically"
-    }
+    },
+    answer: "B"
   },
   {
     mediaUrl: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800",
@@ -73,7 +78,38 @@ const POSTTEST_QUESTIONS = [
       A: "React uses a virtual DOM",
       B: "React is a backend framework",
       C: "React only supports class components"
-    }
+    },
+    answer: "A"
+  },
+  {
+    mediaType: "text",
+    question: "Apa keunggulan utama menggunakan pola manajemen state seperti Zustand dibandingkan Context API biasa?",
+    options: {
+      A: "Zustand memerlukan lebih banyak boilerplate kode",
+      B: "Zustand meminimalkan re-render yang tidak perlu tanpa perlu membungkus komponen dengan Provider",
+      C: "Zustand hanya dapat digunakan pada aplikasi berbasis class components"
+    },
+    answer: "B"
+  },
+  {
+    mediaType: "text",
+    question: "Dalam implementasi Socket.io, apa fungsi utama dari `io.to(room).emit()`?",
+    options: {
+      A: "Mengirimkan pesan ke satu socket id spesifik",
+      B: "Mengirim pesan kepada semua client yang terhubung di server",
+      C: "Mengirim pesan secara spesifik kepada kelompok (room) klien tertentu"
+    },
+    answer: "C"
+  },
+  {
+    mediaType: "text",
+    question: "Mengapa penting menyimpan state kolaboratif (seperti skor atau kesiapan tim) di server, bukan di browser masing-masing?",
+    options: {
+      A: "Agar browser tidak perlu mengunduh file HTML",
+      B: "Untuk menjaga integritas data dan mencegah manipulasi (cheat) dari sisi klien",
+      C: "Karena React tidak mendukung penyimpanan state lokal"
+    },
+    answer: "B"
   }
 ];
 
@@ -146,7 +182,9 @@ io.on('connection', (socket) => {
         name: `Team ${i + 1}`,
         members: [],
         isReady: false,
-        score: 0
+        score: 0,
+        pretestScore: 0,
+        quizScore: 0
       }));
 
       // Distribute
@@ -222,6 +260,7 @@ io.on('connection', (socket) => {
         const currentQ = PRETEST_QUESTIONS[session.currentPretestIndex];
         if (currentQ && answer === currentQ.answer) {
           team.score = (team.score || 0) + 100;
+          team.pretestScore = (team.pretestScore || 0) + 100;
         }
         io.to(sessionCode).emit('readiness_update', session.teams);
       }
@@ -235,6 +274,7 @@ io.on('connection', (socket) => {
       if (allReady) {
         sessions[sessionCode].state = 'quiz';
         sessions[sessionCode].currentQuizIndex = 0;
+        sessions[sessionCode].teams.forEach(t => t.quizCompleted = false);
         io.to(sessionCode).emit('quiz_started');
         io.to(sessionCode).emit('session_state_update', 'quiz');
         io.to(sessionCode).emit('quiz_question_update', {
@@ -248,10 +288,59 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Team submits quiz
+  socket.on('team_submit_quiz', ({ sessionCode, teamCode, answer, reasoning }) => {
+    if (sessions[sessionCode]) {
+      const session = sessions[sessionCode];
+      const team = session.teams.find(t => t.code === teamCode);
+      if (team && !team.quizCompleted) {
+        team.quizCompleted = true;
+        team.lastAnswer = answer;
+        team.lastReasoning = reasoning;
+        const currentQ = POSTTEST_QUESTIONS[session.currentQuizIndex];
+        const isCorrect = currentQ && answer === currentQ.answer;
+        if (isCorrect) {
+          team.score = (team.score || 0) + 100;
+          team.quizScore = (team.quizScore || 0) + 100;
+        }
+        // Send immediate feedback to the specific team's socket
+        socket.emit('quiz_answer_result', { isCorrect, correctAnswer: currentQ?.answer, scoreAdded: isCorrect ? 100 : 0 });
+        io.to(sessionCode).emit('readiness_update', session.teams);
+      }
+    }
+  });
+
+  // Host next quiz question
+  socket.on('host_next_quiz_question', ({ sessionCode }) => {
+    if (sessions[sessionCode]) {
+      const session = sessions[sessionCode];
+      if (session.currentQuizIndex < POSTTEST_QUESTIONS.length - 1) {
+        session.currentQuizIndex += 1;
+        session.teams.forEach(t => t.quizCompleted = false);
+        
+        io.to(sessionCode).emit('readiness_update', session.teams);
+        io.to(sessionCode).emit('quiz_question_update', {
+          index: session.currentQuizIndex,
+          total: POSTTEST_QUESTIONS.length,
+          question: POSTTEST_QUESTIONS[session.currentQuizIndex]
+        });
+      } else {
+        // Quiz finished
+        session.state = 'leaderboard';
+        io.to(sessionCode).emit('session_state_update', 'leaderboard');
+      }
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
     // basic cleanup can be added here
   });
+});
+
+// Anything that doesn't match the above, send back index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 const PORT = process.env.PORT || 3002;

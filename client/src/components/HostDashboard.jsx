@@ -4,7 +4,7 @@ import { socket } from '../socket';
 import { Users, Play, Settings } from 'lucide-react';
 
 export default function HostDashboard() {
-  const { sessionCode, sessionState, participants, teams, pretestData, setSessionCode, setParticipants, setTeams, setSessionState, setPretestData } = useStore();
+  const { sessionCode, sessionState, participants, teams, pretestData, quizData, setSessionCode, setParticipants, setTeams, setSessionState, setPretestData, setQuizData } = useStore();
   const [newParticipant, setNewParticipant] = useState('');
 
   useEffect(() => {
@@ -14,6 +14,7 @@ export default function HostDashboard() {
     socket.on('readiness_update', (teams) => setTeams(teams));
     socket.on('session_state_update', (state) => setSessionState(state));
     socket.on('pretest_question_update', (data) => setPretestData(data));
+    socket.on('quiz_question_update', (data) => setQuizData(data));
 
     return () => {
       socket.off('session_created');
@@ -22,6 +23,7 @@ export default function HostDashboard() {
       socket.off('readiness_update');
       socket.off('session_state_update');
       socket.off('pretest_question_update');
+      socket.off('quiz_question_update');
       socket.off('quiz_started');
     };
   }, []);
@@ -193,9 +195,61 @@ export default function HostDashboard() {
             <div className="card" style={{ marginTop: '2rem', textAlign: 'center' }}>
               <h3 className="pulse-text" style={{ color: 'var(--secondary)' }}>Quiz is Live!</h3>
               <p>Teams are currently answering questions.</p>
+              {quizData && (
+                <div style={{ marginTop: '1rem' }}>
+                  <p>Current Question: {quizData.index + 1} / {quizData.total}</p>
+
+                  {teams.every(t => t.quizCompleted) && teams.length > 0 && (
+                    <div style={{ background: 'var(--panel-bg)', padding: '2rem', borderRadius: '12px', marginTop: '2rem', textAlign: 'left' }}>
+                      <h3 style={{ color: 'var(--accent)', marginBottom: '1rem', textAlign: 'center' }}>Waktunya Diskusi</h3>
+                      <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '2px solid var(--success)', marginBottom: '2rem' }}>
+                        <h4 style={{ color: 'var(--success)', marginBottom: '0.5rem' }}>Kunci Jawaban Benar:</h4>
+                        <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold' }}>{quizData.question.answer}. {quizData.question.options[quizData.question.answer]}</p>
+                      </div>
+                      
+                      <h4>Jawaban & Alasan Tim:</h4>
+                      <div className="grid-list">
+                        {teams.map(t => (
+                          <div key={t.code} className="card" style={{ borderLeft: `6px solid ${t.lastAnswer === quizData.question.answer ? 'var(--success)' : 'var(--danger)'}` }}>
+                            <h4 style={{ margin: 0 }}>{t.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>({t.lastAnswer})</span></h4>
+                            <p style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>"{t.lastReasoning}"</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={() => socket.emit('host_next_quiz_question', { sessionCode })}
+                    style={{ fontSize: '1.2rem', padding: '1rem', marginTop: '2rem' }}
+                    disabled={!teams.every(t => t.quizCompleted)}
+                  >
+                    {quizData.index < quizData.total - 1 ? 'Next Question' : 'Finish Quiz'}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </>
+      )}
+
+      {sessionState === 'leaderboard' && (
+        <div className="card" style={{ marginTop: '2rem', textAlign: 'center', background: 'var(--surface-warm)', padding: '3rem' }}>
+          <h2 style={{ fontSize: '3rem', color: 'var(--accent)', marginBottom: '1rem', textTransform: 'uppercase' }}>🏆 Leaderboard 🏆</h2>
+          <p style={{ fontSize: '1.2rem', marginBottom: '3rem' }}>Kuis telah selesai! Berikut adalah kelompok dengan skor tertinggi:</p>
+          
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+            {[...teams].sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 2).map((t, index) => (
+              <div key={t.code} className="card" style={{ width: '300px', transform: index === 0 ? 'scale(1.1)' : 'scale(1)', border: `4px solid ${index === 0 ? '#fbbf24' : '#9ca3af'}`, background: '#ffffff' }}>
+                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{index === 0 ? '🥇' : '🥈'}</div>
+                <h3 style={{ margin: 0, color: index === 0 ? 'var(--accent-hover)' : 'var(--text-secondary)' }}>{t.name}</h3>
+                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary)', margin: '1rem 0' }}>{t.score || 0} Pts</div>
+                <p style={{ margin: 0, color: 'var(--text-muted)' }}>{t.members.map(m => m.name).join(', ')}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

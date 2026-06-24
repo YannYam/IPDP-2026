@@ -6,10 +6,13 @@ export default function ParticipantFlow() {
   const { sessionCode, teamInfo, teams, sessionState, pretestData, quizData, setSessionCode, setTeamInfo, setTeams, setSessionState, setPretestData, setQuizData } = useStore();
   const [inputSession, setInputSession] = useState('');
   const [inputTeam, setInputTeam] = useState('');
-  const [activeTab, setActiveTab] = useState('material');
+  const [activeTab, setActiveTab] = useState('selection');
   const [reasoning, setReasoning] = useState('');
   const [selectedPretestAnswer, setSelectedPretestAnswer] = useState(null);
+  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState(null);
+  const [quizFeedback, setQuizFeedback] = useState(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [showJourney, setShowJourney] = useState(false);
 
   useEffect(() => {
     socket.on('team_joined', ({ sessionCode, team }) => {
@@ -44,11 +47,18 @@ export default function ParticipantFlow() {
 
     socket.on('quiz_question_update', (data) => {
       setQuizData(data);
+      setSelectedQuizAnswer(null);
+      setQuizFeedback(null);
+      setReasoning('');
       if (data.question.mediaType === 'video' && data.question.mediaUrl) {
         setIsVideoPlaying(true);
       } else {
         setIsVideoPlaying(false);
       }
+    });
+
+    socket.on('quiz_answer_result', (result) => {
+      setQuizFeedback(result);
     });
 
     return () => {
@@ -58,6 +68,7 @@ export default function ParticipantFlow() {
       socket.off('session_state_update');
       socket.off('pretest_question_update');
       socket.off('quiz_question_update');
+      socket.off('quiz_answer_result');
     };
   }, [teamInfo]);
 
@@ -72,6 +83,10 @@ export default function ParticipantFlow() {
 
   const handlePretestDone = () => {
     socket.emit('team_submit_pretest', { sessionCode, teamCode: teamInfo.code, answer: selectedPretestAnswer });
+  };
+
+  const handleQuizDone = () => {
+    socket.emit('team_submit_quiz', { sessionCode, teamCode: teamInfo.code, answer: selectedQuizAnswer, reasoning });
   };
 
   if (!sessionCode) {
@@ -103,6 +118,52 @@ export default function ParticipantFlow() {
   }
 
   const allTeamsPretestCompleted = teams.length > 0 && teams.every(t => t.pretestCompleted);
+
+  if (sessionState === 'leaderboard') {
+    // Gunakan data tim yang paling update dari array teams
+    const currentTeamData = teams.find(t => t.code === teamInfo?.code) || teamInfo;
+
+    return (
+      <div className="panel" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+        <h2 style={{ fontSize: '3rem', color: 'var(--accent)', marginBottom: '1rem', textTransform: 'uppercase' }}>🎉 Kuis Selesai! 🎉</h2>
+        <p style={{ fontSize: '1.2rem', marginBottom: '3rem' }}>Terima kasih telah berpartisipasi. Silakan lihat hasil klasemen akhir di layar proyektor Host!</p>
+        
+        {!showJourney ? (
+          <>
+            <div className="card" style={{ display: 'inline-block', background: 'var(--surface-warm)', border: '4px solid var(--accent)', padding: '2rem 4rem', marginBottom: '2rem' }}>
+              <h3 style={{ color: 'var(--primary)', margin: 0, fontSize: '1.5rem' }}>Skor Akhir Tim Kamu</h3>
+              <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'var(--accent-hover)', marginTop: '0.5rem' }}>{currentTeamData?.score || 0}</div>
+            </div>
+            <div>
+              <button className="btn btn-secondary" onClick={() => setShowJourney(true)} style={{ padding: '1rem 2rem', fontSize: '1.2rem' }}>
+                🗺️ Lihat Perjalananmu
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="card" style={{ background: 'var(--panel-bg)', textAlign: 'left', marginTop: '1rem' }}>
+            <h3 style={{ color: 'var(--accent)', marginBottom: '2rem', textAlign: 'center' }}>Perjalanan Belajar Tim</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+              <div style={{ textAlign: 'center' }}>
+                <h4 style={{ color: 'var(--text-muted)' }}>Skor Pretest</h4>
+                <div style={{ fontSize: '3rem', color: 'var(--primary)', fontWeight: 'bold' }}>{currentTeamData?.pretestScore || 0}</div>
+                <p style={{ fontSize: '0.9rem' }}>(Sebelum Materi)</p>
+              </div>
+              <div style={{ fontSize: '2rem', color: 'var(--accent)' }}>➡️</div>
+              <div style={{ textAlign: 'center' }}>
+                <h4 style={{ color: 'var(--text-muted)' }}>Skor Posttest</h4>
+                <div style={{ fontSize: '3rem', color: 'var(--success)', fontWeight: 'bold' }}>{currentTeamData?.quizScore || 0}</div>
+                <p style={{ fontSize: '0.9rem' }}>(Sesudah Materi)</p>
+              </div>
+            </div>
+            <div style={{ marginTop: '3rem', textAlign: 'center' }}>
+              <button className="btn btn-primary" onClick={() => setShowJourney(false)}>Kembali</button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   if (sessionState === 'lobby' || sessionState === 'waiting_teams' || sessionState === 'pretest') {
     return (
@@ -168,24 +229,63 @@ export default function ParticipantFlow() {
         <span className="badge badge-success" style={{ fontSize: '1rem', padding: '0.5rem 1rem' }}>{teamInfo?.code}</span>
       </div>
 
-      <div className="tabs">
-        <div className={`tab ${activeTab === 'material' ? 'active' : ''}`} onClick={() => setActiveTab('material')}>Material</div>
-        <div className={`tab ${activeTab === 'quiz' ? 'active' : ''}`} onClick={() => setActiveTab('quiz')}>Quiz</div>
-      </div>
+      {activeTab === 'selection' && (
+        <div className="menu-choices">
+          <div className="choice-card material" onClick={() => setActiveTab('material')}>
+            <div className="choice-icon">📚</div>
+            <h3>Materi Belajar</h3>
+            <p>Pelajari modul dan video sebelum mulai</p>
+          </div>
+          <div className="choice-card quiz" onClick={() => setActiveTab('quiz')}>
+            <div className="choice-icon">🎮</div>
+            <h3>Mulai Quiz</h3>
+            <p>Ayo uji pengetahuan tim kalian!</p>
+          </div>
+        </div>
+      )}
 
       {activeTab === 'material' && (
         <div className="card" style={{ padding: '2rem' }}>
-          <h3 style={{ color: 'var(--primary)' }}>Study Materials</h3>
-          <p style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>Read the modules and watch the videos before starting the quiz with your team.</p>
-          <ul style={{ lineHeight: '2' }}>
-            <li><strong style={{ color: 'white' }}>Module 1:</strong> Introduction to WebSockets and Real-time data sync.</li>
-            <li><strong style={{ color: 'white' }}>Module 2:</strong> Collaborative State Management in React.</li>
+          <h3 style={{ color: 'var(--primary)' }}>Materi Belajar</h3>
+          <p style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>Pelajari modul dan tonton video sebelum memulai kuis bersama tim.</p>
+          
+          <div style={{ marginBottom: '2rem' }}>
+            <iframe 
+              width="100%" 
+              height="315" 
+              src="https://www.youtube.com/embed/vQ_a7_xP-G0" 
+              title="WebSocket Tutorial" 
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen
+              style={{ borderRadius: '12px', border: '2px solid var(--primary-light)' }}
+            ></iframe>
+          </div>
+
+          <ul style={{ lineHeight: '2', color: 'var(--text-main)', marginBottom: '2rem' }}>
+            <li><strong>Modul 1:</strong> Pengantar WebSockets dan Sinkronisasi data Real-time.</li>
+            <li><strong>Modul 2:</strong> Manajemen State Kolaboratif di React.</li>
           </ul>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setActiveTab('selection')}
+            style={{ width: '100%', marginTop: '1rem' }}
+          >
+            ← Kembali ke Pilihan
+          </button>
         </div>
       )}
 
       {activeTab === 'quiz' && (
         <div className="quiz-container">
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setActiveTab('selection')}
+            style={{ alignSelf: 'flex-start', marginBottom: '1rem' }}
+          >
+            ← Kembali ke Pilihan
+          </button>
+          
           {sessionState === 'preparation' ? (
             <div className="waiting-phase">
               <div className="loading-spinner"></div>
@@ -232,7 +332,13 @@ export default function ParticipantFlow() {
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '2rem' }}>
                 {Object.entries(quizData.question.options).map(([key, value]) => (
-                  <button key={key} className="btn btn-secondary" style={{ textAlign: 'left' }}>
+                  <button 
+                    key={key} 
+                    className={`btn ${selectedQuizAnswer === key ? 'btn-accent' : 'btn-secondary'}`} 
+                    style={{ textAlign: 'left' }}
+                    onClick={() => setSelectedQuizAnswer(key)}
+                    disabled={quizFeedback !== null}
+                  >
                     {key}. {value}
                   </button>
                 ))}
@@ -246,15 +352,28 @@ export default function ParticipantFlow() {
                 placeholder="Type your team's reasoning here..."
                 value={reasoning}
                 onChange={(e) => setReasoning(e.target.value)}
+                disabled={quizFeedback !== null}
               ></textarea>
               
-              <button 
-                className="btn btn-accent" 
-                disabled={!reasoning.trim()}
-                style={{ marginTop: '1rem', width: '100%' }}
-              >
-                Submit Team Answer
-              </button>
+              {!quizFeedback ? (
+                <button 
+                  className="btn btn-accent" 
+                  disabled={!reasoning.trim() || !selectedQuizAnswer}
+                  onClick={handleQuizDone}
+                  style={{ marginTop: '1rem', width: '100%' }}
+                >
+                  Submit Team Answer
+                </button>
+              ) : (
+                <div className="card" style={{ marginTop: '1rem', background: quizFeedback.isCorrect ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `2px solid ${quizFeedback.isCorrect ? 'var(--success)' : 'var(--danger)'}` }}>
+                  <h3 style={{ color: quizFeedback.isCorrect ? 'var(--success)' : 'var(--danger)' }}>
+                    {quizFeedback.isCorrect ? 'Benar!' : 'Salah!'}
+                  </h3>
+                  <p>Jawaban yang benar adalah <strong>{quizFeedback.correctAnswer}</strong>.</p>
+                  {quizFeedback.isCorrect && <p style={{ fontSize: '1.2rem', color: 'var(--success)' }}>Skor bertambah: +{quizFeedback.scoreAdded}</p>}
+                  <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>Menunggu Host melanjutkan pertanyaan...</p>
+                </div>
+              )}
             </div>
           ) : (
             <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>

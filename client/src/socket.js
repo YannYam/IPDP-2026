@@ -1,4 +1,4 @@
 import { io } from 'socket.io-client';
 
-const URL = 'http://localhost:3002';
+const URL = import.meta.env.PROD ? undefined : 'http://localhost:3002';
 export const socket = io(URL);
