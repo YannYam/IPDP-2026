@@ -3,11 +3,12 @@ import { useStore } from '../store';
 import { socket } from '../socket';
 
 export default function ParticipantFlow() {
-  const { sessionCode, teamInfo, teams, sessionState, setSessionCode, setTeamInfo, setTeams, setSessionState } = useStore();
+  const { sessionCode, teamInfo, teams, sessionState, pretestData, setSessionCode, setTeamInfo, setTeams, setSessionState, setPretestData } = useStore();
   const [inputSession, setInputSession] = useState('');
   const [inputTeam, setInputTeam] = useState('');
   const [activeTab, setActiveTab] = useState('material');
   const [reasoning, setReasoning] = useState('');
+  const [selectedPretestAnswer, setSelectedPretestAnswer] = useState(null);
 
   useEffect(() => {
     socket.on('team_joined', ({ sessionCode, team }) => {
@@ -35,11 +36,17 @@ export default function ParticipantFlow() {
       setSessionState(state);
     });
 
+    socket.on('pretest_question_update', (data) => {
+      setPretestData(data);
+      setSelectedPretestAnswer(null); // Reset choice on new question
+    });
+
     return () => {
       socket.off('team_joined');
       socket.off('teams_assigned');
       socket.off('readiness_update');
       socket.off('session_state_update');
+      socket.off('pretest_question_update');
     };
   }, [teamInfo]);
 
@@ -50,6 +57,10 @@ export default function ParticipantFlow() {
 
   const handleToggleReady = () => {
     socket.emit('toggle_ready', { sessionCode, teamCode: teamInfo.code });
+  };
+
+  const handlePretestDone = () => {
+    socket.emit('team_submit_pretest', { sessionCode, teamCode: teamInfo.code, answer: selectedPretestAnswer });
   };
 
   if (!sessionCode) {
@@ -80,6 +91,8 @@ export default function ParticipantFlow() {
     );
   }
 
+  const allTeamsPretestCompleted = teams.length > 0 && teams.every(t => t.pretestCompleted);
+
   if (sessionState === 'lobby' || sessionState === 'waiting_teams' || sessionState === 'pretest') {
     return (
       <div className="panel waiting-phase">
@@ -91,6 +104,44 @@ export default function ParticipantFlow() {
             ? 'The host is currently organizing the session. Please wait.' 
             : 'Please look at the Host\'s screen and discuss the Pretest questions with your team!'}
         </p>
+        {sessionState === 'pretest' && !teamInfo?.pretestCompleted && (
+          <div style={{ marginTop: '2rem' }}>
+            <p style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Select your answer based on the Host's screen:</p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
+              {['A', 'B', 'C', 'D'].map(option => (
+                <button 
+                  key={option}
+                  className={`btn ${selectedPretestAnswer === option ? 'btn-accent' : 'btn-secondary'}`}
+                  onClick={() => setSelectedPretestAnswer(option)}
+                  style={{ width: '60px', height: '60px', fontSize: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            <button 
+              className="btn btn-accent" 
+              onClick={handlePretestDone} 
+              disabled={!selectedPretestAnswer}
+              style={{ width: '100%', padding: '1rem' }}
+            >
+              Submit Pretest Answer
+            </button>
+          </div>
+        )}
+        {sessionState === 'pretest' && teamInfo?.pretestCompleted && !allTeamsPretestCompleted && (
+          <div className="card" style={{ marginTop: '2rem', textAlign: 'center', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid var(--primary)' }}>
+            <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>✔ Answer Submitted</h3>
+            <p style={{ fontSize: '1.2rem', margin: 0 }}>Waiting for other teams to finish...</p>
+          </div>
+        )}
+        {sessionState === 'pretest' && teamInfo?.pretestCompleted && allTeamsPretestCompleted && (
+          <div className="card" style={{ marginTop: '2rem', textAlign: 'center', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid var(--success)' }}>
+            <h3 style={{ color: 'var(--success)', marginBottom: '1rem' }}>✔ Pretest Complete!</h3>
+            <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>The correct answer was: <strong style={{ color: 'white' }}>{pretestData?.question.answer || 'B'}</strong></p>
+            <p style={{ fontSize: '1.5rem', color: 'var(--accent)', fontWeight: 'bold', margin: 0 }}>Team Score: {teamInfo?.score || 0}</p>
+          </div>
+        )}
       </div>
     );
   }

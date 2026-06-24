@@ -19,7 +19,40 @@ app.use(express.json());
 
 // In-memory store for quick lookups
 const sessions = {}; 
-// e.g., { "CODE123": { state: "lobby", teams: [{ code: "T1", members: [], isReady: false }] } }
+// e.g., { "CODE123": { state: "lobby", teams: [{ code: "T1", members: [], isReady: false }], currentPretestIndex: 0 } }
+
+const PRETEST_QUESTIONS = [
+  {
+    question: "What is the primary purpose of WebSocket in our app?",
+    options: {
+      A: "To style the page",
+      B: "To establish bi-directional real-time communication",
+      C: "To save data locally",
+      D: "To replace HTML"
+    },
+    answer: "B"
+  },
+  {
+    question: "Which feature is essential for a Team-Based Quiz?",
+    options: {
+      A: "Single-player mode",
+      B: "Offline availability",
+      C: "Synchronized state across team devices",
+      D: "Static HTML pages"
+    },
+    answer: "C"
+  },
+  {
+    question: "Why do we require reasoning for each quiz answer?",
+    options: {
+      A: "To make the quiz longer",
+      B: "To test typing speed",
+      C: "To encourage team discussion and critical thinking",
+      D: "Because the database needs text"
+    },
+    answer: "C"
+  }
+];
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -27,7 +60,7 @@ io.on('connection', (socket) => {
   // Host creates session
   socket.on('create_session', (data) => {
     const sessionCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    sessions[sessionCode] = { host: socket.id, state: 'lobby', participants: [], teams: [] };
+    sessions[sessionCode] = { host: socket.id, state: 'lobby', participants: [], teams: [], currentPretestIndex: 0 };
     socket.join(sessionCode);
     socket.emit('session_created', { sessionCode });
   });
@@ -44,6 +77,14 @@ io.on('connection', (socket) => {
         // Emit current state so team knows where they are
         socket.emit('session_state_update', sessions[sessionCode].state);
         socket.emit('teams_assigned', { teams: sessions[sessionCode].teams });
+        
+        if (sessions[sessionCode].state === 'pretest') {
+          socket.emit('pretest_question_update', {
+            index: sessions[sessionCode].currentPretestIndex,
+            total: PRETEST_QUESTIONS.length,
+            question: PRETEST_QUESTIONS[sessions[sessionCode].currentPretestIndex]
+          });
+        }
       } else {
         socket.emit('error', 'Invalid Team Code');
       }
@@ -81,7 +122,8 @@ io.on('connection', (socket) => {
         code: `TEAM-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
         name: `Team ${i + 1}`,
         members: [],
-        isReady: false
+        isReady: false,
+        score: 0
       }));
 
       // Distribute
@@ -102,7 +144,37 @@ io.on('connection', (socket) => {
   socket.on('host_advance_state', ({ sessionCode, newState }) => {
     if (sessions[sessionCode]) {
       sessions[sessionCode].state = newState;
+      if (newState === 'pretest') {
+        sessions[sessionCode].currentPretestIndex = 0;
+        sessions[sessionCode].teams.forEach(t => t.pretestCompleted = false);
+      }
       io.to(sessionCode).emit('session_state_update', newState);
+      
+      if (newState === 'pretest') {
+        io.to(sessionCode).emit('pretest_question_update', {
+          index: 0,
+          total: PRETEST_QUESTIONS.length,
+          question: PRETEST_QUESTIONS[0]
+        });
+      }
+    }
+  });
+
+  // Host next pretest question
+  socket.on('host_next_pretest_question', ({ sessionCode }) => {
+    if (sessions[sessionCode]) {
+      const session = sessions[sessionCode];
+      if (session.currentPretestIndex < PRETEST_QUESTIONS.length - 1) {
+        session.currentPretestIndex += 1;
+        session.teams.forEach(t => t.pretestCompleted = false);
+        
+        io.to(sessionCode).emit('readiness_update', session.teams);
+        io.to(sessionCode).emit('pretest_question_update', {
+          index: session.currentPretestIndex,
+          total: PRETEST_QUESTIONS.length,
+          question: PRETEST_QUESTIONS[session.currentPretestIndex]
+        });
+      }
     }
   });
 
@@ -113,6 +185,22 @@ io.on('connection', (socket) => {
       if (team) {
         team.isReady = !team.isReady;
         io.to(sessionCode).emit('readiness_update', sessions[sessionCode].teams);
+      }
+    }
+  });
+
+  // Team submits pretest
+  socket.on('team_submit_pretest', ({ sessionCode, teamCode, answer }) => {
+    if (sessions[sessionCode]) {
+      const session = sessions[sessionCode];
+      const team = session.teams.find(t => t.code === teamCode);
+      if (team && !team.pretestCompleted) {
+        team.pretestCompleted = true;
+        const currentQ = PRETEST_QUESTIONS[session.currentPretestIndex];
+        if (currentQ && answer === currentQ.answer) {
+          team.score = (team.score || 0) + 100;
+        }
+        io.to(sessionCode).emit('readiness_update', session.teams);
       }
     }
   });

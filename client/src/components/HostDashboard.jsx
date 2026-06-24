@@ -4,7 +4,7 @@ import { socket } from '../socket';
 import { Users, Play, Settings } from 'lucide-react';
 
 export default function HostDashboard() {
-  const { sessionCode, sessionState, participants, teams, setSessionCode, setParticipants, setTeams, setSessionState } = useStore();
+  const { sessionCode, sessionState, participants, teams, pretestData, setSessionCode, setParticipants, setTeams, setSessionState, setPretestData } = useStore();
   const [newParticipant, setNewParticipant] = useState('');
 
   useEffect(() => {
@@ -13,17 +13,24 @@ export default function HostDashboard() {
     socket.on('teams_assigned', ({ teams }) => setTeams(teams));
     socket.on('readiness_update', (teams) => setTeams(teams));
     socket.on('session_state_update', (state) => setSessionState(state));
+    socket.on('pretest_question_update', (data) => setPretestData(data));
 
     return () => {
       socket.off('session_created');
       socket.off('lobby_update');
       socket.off('teams_assigned');
       socket.off('readiness_update');
+      socket.off('session_state_update');
+      socket.off('pretest_question_update');
       socket.off('quiz_started');
     };
   }, []);
 
   const handleCreateSession = () => {
+    if (!socket.connected) {
+      alert("Error: Cannot connect to the backend server. Please make sure you have started the server by running 'npm start' in the 'app_build/server' directory!");
+      return;
+    }
     socket.emit('create_session');
   };
 
@@ -83,9 +90,6 @@ export default function HostDashboard() {
             {participants.map(p => (
               <div key={p.id} className="card">
                 <div>{p.name}</div>
-                <span className={`badge ${p.pretestCompleted ? 'badge-success' : 'badge-pending'}`}>
-                  {p.pretestCompleted ? 'Pretest Done' : 'Pending'}
-                </span>
               </div>
             ))}
           </div>
@@ -109,28 +113,43 @@ export default function HostDashboard() {
         </div>
       )}
 
-      {sessionState === 'pretest' && (
+      {sessionState === 'pretest' && pretestData && (
         <div style={{ textAlign: 'center' }}>
-          <h3 className="pulse-text" style={{ color: 'var(--secondary)' }}>Pretest is Active</h3>
+          <h3 className="pulse-text" style={{ color: 'var(--secondary)' }}>Pretest is Active ({pretestData.index + 1} / {pretestData.total})</h3>
           <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>Please display this screen to the teams.</p>
           
           <div style={{ background: 'rgba(0,0,0,0.4)', padding: '2rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <h2 style={{ color: 'white', marginBottom: '2rem' }}>Question 1: What is the primary purpose of WebSocket in our app?</h2>
+            <h2 style={{ color: 'white', marginBottom: '2rem' }}>Question {pretestData.index + 1}: {pretestData.question.question}</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left' }}>
-              <div className="card" style={{ fontSize: '1.2rem', padding: '1.5rem' }}>A. To style the page</div>
-              <div className="card" style={{ fontSize: '1.2rem', padding: '1.5rem', background: 'rgba(59, 130, 246, 0.2)', border: '1px solid var(--primary)' }}>B. To establish bi-directional real-time communication</div>
-              <div className="card" style={{ fontSize: '1.2rem', padding: '1.5rem' }}>C. To save data locally</div>
-              <div className="card" style={{ fontSize: '1.2rem', padding: '1.5rem' }}>D. To replace HTML</div>
+              {Object.entries(pretestData.question.options).map(([key, value]) => (
+                <div key={key} className="card" style={{ fontSize: '1.2rem', padding: '1.5rem' }}>
+                  {key}. {value}
+                </div>
+              ))}
             </div>
           </div>
 
-          <button 
-            className="btn btn-accent" 
-            onClick={() => socket.emit('host_advance_state', { sessionCode, newState: 'preparation' })}
-            style={{ marginTop: '2rem', width: '100%', fontSize: '1.2rem', padding: '1rem' }}
-          >
-            End Pretest & Move to Main Dashboard
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+            {pretestData.index < pretestData.total - 1 ? (
+              <button 
+                className="btn btn-primary" 
+                onClick={() => socket.emit('host_next_pretest_question', { sessionCode })}
+                style={{ flex: 1, fontSize: '1.2rem', padding: '1rem' }}
+                disabled={!teams.every(t => t.pretestCompleted)}
+              >
+                Next Question
+              </button>
+            ) : (
+              <button 
+                className="btn btn-accent" 
+                onClick={() => socket.emit('host_advance_state', { sessionCode, newState: 'preparation' })}
+                style={{ flex: 1, fontSize: '1.2rem', padding: '1rem' }}
+                disabled={!teams.every(t => t.pretestCompleted)}
+              >
+                End Pretest & Move to Main Dashboard
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -144,9 +163,13 @@ export default function HostDashboard() {
             {teams.map(t => (
               <div key={t.code} className="card">
                 <h4>{t.name} (Code: {t.code})</h4>
+                <div style={{ marginBottom: '0.5rem', fontWeight: 'bold', color: 'var(--accent)' }}>Score: {t.score || 0}</div>
                 <div style={{ marginBottom: '1rem' }}>
                   {t.members.map(m => m.name).join(', ')}
                 </div>
+                {t.pretestCompleted && (
+                  <span className="badge badge-success" style={{ marginRight: '0.5rem' }}>Pretest Done</span>
+                )}
                 <span className={`badge ${t.isReady ? 'badge-success' : 'badge-pending'}`}>
                   {t.isReady ? 'Ready' : 'Not Ready'}
                 </span>

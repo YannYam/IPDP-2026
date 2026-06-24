@@ -8,6 +8,7 @@ export const useStore = create((set) => ({
   participants: [],
   teams: [],
   sessionState: 'lobby', // 'lobby', 'grouping', 'preparation', 'quiz'
+  pretestData: null,
 
   setRole: (role) => set({ role }),
   setSessionCode: (code) => set({ sessionCode: code }),
@@ -16,4 +17,5 @@ export const useStore = create((set) => ({
   setParticipants: (participants) => set({ participants }),
   setTeams: (teams) => set({ teams }),
   setSessionState: (state) => set({ sessionState: state }),
+  setPretestData: (data) => set({ pretestData: data }),
 }));
