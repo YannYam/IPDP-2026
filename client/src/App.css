@@ -134,7 +134,8 @@ p {
   transition: all 0.15s ease;
   box-shadow: 0 6px 0 var(--primary-hover), 0 10px 20px var(--primary-glow);
   text-decoration: none;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -426,30 +427,62 @@ textarea.input-field {
 /* --- Responsive --- */
 @media (max-width: 768px) {
   .app-container {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 
   .panel {
-    padding: 2rem;
+    padding: 1.5rem !important;
     border-radius: var(--radius-lg);
   }
 
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.4rem; }
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.5rem !important; }
+  h3 { font-size: 1.3rem !important; }
 
   .menu-choices {
     flex-direction: column;
     align-items: center;
+    gap: 1rem;
   }
 
   .choice-card {
     width: 100%;
-    max-width: 320px;
+    max-width: 100%;
+    padding: 2rem 1.5rem;
   }
 
   .btn {
-    padding: 0.8rem 1.5rem;
+    padding: 0.8rem 1.2rem;
     font-size: 1rem;
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .grid-list {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 1.2rem !important;
+  }
+
+  /* Target specific inline styles to make them responsive */
+  div[style*="font-size: 4rem"] {
+    font-size: 2.5rem !important;
+  }
+  
+  div[style*="font-size: 3rem"] {
+    font-size: 2rem !important;
+  }
+
+  div[style*="width: 300px"] {
+    width: 100% !important;
+    transform: scale(1) !important;
+    margin-bottom: 1rem;
+  }
+
+  iframe {
+    height: 200px !important;
   }
 }

@@ -27,32 +27,32 @@ const sessions = {};
 
 const PRETEST_QUESTIONS = [
   {
-    question: "What is the primary purpose of WebSocket in our app?",
+    question: "Apa tujuan utama penggunaan WebSocket dalam aplikasi kita?",
     options: {
-      A: "To style the page",
-      B: "To establish bi-directional real-time communication",
-      C: "To save data locally",
-      D: "To replace HTML"
+      A: "Untuk mengatur gaya halaman (CSS)",
+      B: "Untuk membangun komunikasi real-time dua arah",
+      C: "Untuk menyimpan data secara lokal",
+      D: "Untuk menggantikan HTML"
     },
     answer: "B"
   },
   {
-    question: "Which feature is essential for a Team-Based Quiz?",
+    question: "Fitur manakah yang paling penting untuk Kuis Berbasis Tim?",
     options: {
-      A: "Single-player mode",
-      B: "Offline availability",
-      C: "Synchronized state across team devices",
-      D: "Static HTML pages"
+      A: "Mode pemain tunggal",
+      B: "Ketersediaan secara offline",
+      C: "Sinkronisasi state (status) antar perangkat tim",
+      D: "Halaman HTML statis"
     },
     answer: "C"
   },
   {
-    question: "Why do we require reasoning for each quiz answer?",
+    question: "Mengapa kita mewajibkan pengisian alasan untuk setiap jawaban kuis?",
     options: {
-      A: "To make the quiz longer",
-      B: "To test typing speed",
-      C: "To encourage team discussion and critical thinking",
-      D: "Because the database needs text"
+      A: "Agar kuis menjadi lebih lama",
+      B: "Untuk menguji kecepatan mengetik",
+      C: "Untuk mendorong diskusi tim dan berpikir kritis",
+      D: "Karena database membutuhkan teks"
     },
     answer: "C"
   }
@@ -62,22 +62,22 @@ const POSTTEST_QUESTIONS = [
   {
     mediaUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
     mediaType: "video",
-    question: "Based on the video, why is Socket.io used in this application instead of traditional HTTP polling?",
+    question: "Berdasarkan video, mengapa Socket.io digunakan dalam aplikasi ini dibandingkan HTTP polling tradisional?",
     options: {
-      A: "It relies entirely on MongoDB to push updates",
-      B: "It provides event-based, low-latency bi-directional synchronization",
-      C: "It is the only way to style React components dynamically"
+      A: "Sepenuhnya bergantung pada MongoDB untuk mendorong pembaruan",
+      B: "Menyediakan sinkronisasi dua arah berbasis event dengan latensi rendah",
+      C: "Satu-satunya cara untuk mengatur gaya komponen React secara dinamis"
     },
     answer: "B"
   },
   {
     mediaUrl: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800",
     mediaType: "image",
-    question: "Based on the React logo above, which of the following is true?",
+    question: "Berdasarkan logo React di atas, manakah pernyataan berikut yang benar?",
     options: {
-      A: "React uses a virtual DOM",
-      B: "React is a backend framework",
-      C: "React only supports class components"
+      A: "React menggunakan virtual DOM",
+      B: "React adalah framework backend",
+      C: "React hanya mendukung class components"
     },
     answer: "A"
   },
@@ -129,9 +129,15 @@ io.on('connection', (socket) => {
     if (sessions[sessionCode]) {
       const team = sessions[sessionCode].teams.find(t => t.code === teamCode);
       if (team) {
+        team.hasJoined = true;
+        socket.sessionCode = sessionCode;
+        socket.teamCode = teamCode;
+        
         // Team found, join socket to session and emit state
         socket.join(sessionCode);
         socket.emit('team_joined', { sessionCode, team });
+        
+        io.to(sessionCode).emit('readiness_update', sessions[sessionCode].teams);
         
         // Emit current state so team knows where they are
         socket.emit('session_state_update', sessions[sessionCode].state);
@@ -161,6 +167,29 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Check available teams for a session (used by participant before joining a team)
+  socket.on('check_session_teams', ({ sessionCode }) => {
+    if (sessions[sessionCode]) {
+      socket.join(sessionCode); // Join room to listen for teams_assigned event
+      socket.emit('session_teams_list', { teams: sessions[sessionCode].teams });
+    } else {
+      socket.emit('error', 'Session not found');
+    }
+  });
+
+  // Participant leaves a team (to change team)
+  socket.on('team_leave_session', ({ sessionCode, teamCode }) => {
+    if (sessions[sessionCode]) {
+      const team = sessions[sessionCode].teams.find(t => t.code === teamCode);
+      if (team) {
+        team.hasJoined = false;
+        socket.sessionCode = null;
+        socket.teamCode = null;
+        io.to(sessionCode).emit('readiness_update', sessions[sessionCode].teams);
+      }
+    }
+  });
+
   // Participant completes pretest
   socket.on('submit_pretest', ({ sessionCode }) => {
     if (sessions[sessionCode]) {
@@ -181,10 +210,13 @@ io.on('connection', (socket) => {
         code: `TEAM-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
         name: `Team ${i + 1}`,
         members: [],
+        hasJoined: false,
         isReady: false,
         score: 0,
         pretestScore: 0,
-        quizScore: 0
+        quizScore: 0,
+        correctPretest: 0,
+        correctQuiz: 0
       }));
 
       // Distribute
@@ -257,11 +289,13 @@ io.on('connection', (socket) => {
       const team = session.teams.find(t => t.code === teamCode);
       if (team && !team.pretestCompleted) {
         team.pretestCompleted = true;
+        team.lastPretestAnswer = answer;
         const currentQ = PRETEST_QUESTIONS[session.currentPretestIndex];
         if (currentQ && answer === currentQ.answer) {
-          team.score = (team.score || 0) + 100;
-          team.pretestScore = (team.pretestScore || 0) + 100;
+          team.correctPretest = (team.correctPretest || 0) + 1;
         }
+        team.pretestScore = Math.round((team.correctPretest / PRETEST_QUESTIONS.length) * 100) || 0;
+        team.score = team.pretestScore + (team.quizScore || 0);
         io.to(sessionCode).emit('readiness_update', session.teams);
       }
     }
@@ -300,11 +334,14 @@ io.on('connection', (socket) => {
         const currentQ = POSTTEST_QUESTIONS[session.currentQuizIndex];
         const isCorrect = currentQ && answer === currentQ.answer;
         if (isCorrect) {
-          team.score = (team.score || 0) + 100;
-          team.quizScore = (team.quizScore || 0) + 100;
+          team.correctQuiz = (team.correctQuiz || 0) + 1;
         }
+        team.quizScore = Math.round((team.correctQuiz / POSTTEST_QUESTIONS.length) * 100) || 0;
+        team.score = (team.pretestScore || 0) + team.quizScore;
+        
+        const scoreAdded = isCorrect ? Math.round((1 / POSTTEST_QUESTIONS.length) * 100) : 0;
         // Send immediate feedback to the specific team's socket
-        socket.emit('quiz_answer_result', { isCorrect, correctAnswer: currentQ?.answer, scoreAdded: isCorrect ? 100 : 0 });
+        socket.emit('quiz_answer_result', { isCorrect, correctAnswer: currentQ?.answer, scoreAdded });
         io.to(sessionCode).emit('readiness_update', session.teams);
       }
     }
@@ -334,12 +371,20 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
-    // basic cleanup can be added here
+    if (socket.sessionCode && socket.teamCode) {
+      if (sessions[socket.sessionCode]) {
+        const team = sessions[socket.sessionCode].teams.find(t => t.code === socket.teamCode);
+        if (team) {
+          team.hasJoined = false;
+          io.to(socket.sessionCode).emit('readiness_update', sessions[socket.sessionCode].teams);
+        }
+      }
+    }
   });
 });
 
 // Anything that doesn't match the above, send back index.html
-app.get('*', (req, res) => {
+app.use((req, res, next) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 

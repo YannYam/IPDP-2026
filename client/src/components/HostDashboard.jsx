@@ -58,10 +58,10 @@ export default function HostDashboard() {
   if (!sessionCode) {
     return (
       <div className="panel" style={{ textAlign: 'center' }}>
-        <h2>Host Dashboard</h2>
-        <p>Create a new session to get started.</p>
+        <h2>Dashboard Host</h2>
+        <p>Buat sesi baru untuk memulai.</p>
         <button className="btn" onClick={handleCreateSession}>
-          <Settings style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Create Session
+          <Settings style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Buat Sesi
         </button>
       </div>
     );
@@ -71,21 +71,21 @@ export default function HostDashboard() {
 
   return (
     <div className="panel">
-      <h2>Session: {sessionCode}</h2>
+      <h2>Sesi: {sessionCode}</h2>
       
       {sessionState === 'lobby' && (
         <>
-          <h3>Waiting Lobby ({participants.length} Joined)</h3>
+          <h3>Lobi Menunggu ({participants.length} Bergabung)</h3>
           
           <form onSubmit={handleAddParticipant} style={{ marginBottom: '2rem', display: 'flex', gap: '1rem' }}>
             <input 
               className="input-field" 
               style={{ marginBottom: 0 }}
-              placeholder="Enter participant name..." 
+              placeholder="Masukkan nama peserta..." 
               value={newParticipant} 
               onChange={e => setNewParticipant(e.target.value)} 
             />
-            <button className="btn" type="submit" style={{ whiteSpace: 'nowrap' }}>Add Participant</button>
+            <button className="btn" type="submit" style={{ whiteSpace: 'nowrap' }}>Tambah Peserta</button>
           </form>
 
           <div className="grid-list">
@@ -96,40 +96,46 @@ export default function HostDashboard() {
             ))}
           </div>
           <button className="btn" onClick={handleRandomize} style={{ marginTop: '2rem' }}>
-            <Users style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Randomize Teams
+            <Users style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Acak Tim
           </button>
         </>
       )}
 
       {sessionState === 'waiting_teams' && (
         <div style={{ textAlign: 'center', marginBottom: '2rem', background: 'var(--panel-bg)', padding: '2rem', borderRadius: '12px' }}>
-          <h3 className="pulse-text" style={{ color: 'var(--secondary)' }}>Waiting for Teams to Log In</h3>
-          <p style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>Please share the generated Team Codes below with each team so they can log in on their shared device.</p>
-          <button 
-            className="btn btn-accent" 
-            onClick={() => socket.emit('host_advance_state', { sessionCode, newState: 'pretest' })}
-            style={{ fontSize: '1.2rem', padding: '1rem 2rem' }}
-          >
-            Start Pretest Mode
-          </button>
+          <h3 className="pulse-text" style={{ color: 'var(--secondary)' }}>Menunggu Tim Login</h3>
+          <p style={{ fontSize: '1.2rem', margin: 0 }}>Silakan arahkan peserta untuk login menggunakan ID Sesi: <strong>{sessionCode}</strong></p>
         </div>
       )}
 
       {sessionState === 'pretest' && pretestData && (
         <div style={{ textAlign: 'center' }}>
-          <h3 className="pulse-text" style={{ color: 'var(--secondary)' }}>Pretest is Active ({pretestData.index + 1} / {pretestData.total})</h3>
-          <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>Please display this screen to the teams.</p>
+          <h3 className="pulse-text" style={{ color: 'var(--secondary)' }}>Pretest Sedang Berlangsung ({pretestData.index + 1} / {pretestData.total})</h3>
+          <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>Pertanyaan sedang dikerjakan oleh tim di perangkat masing-masing.</p>
           
-          <div style={{ background: 'rgba(0,0,0,0.4)', padding: '2rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <h2 style={{ color: 'white', marginBottom: '2rem' }}>Question {pretestData.index + 1}: {pretestData.question.question}</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left' }}>
-              {Object.entries(pretestData.question.options).map(([key, value]) => (
-                <div key={key} className="card" style={{ fontSize: '1.2rem', padding: '1.5rem' }}>
-                  {key}. {value}
-                </div>
-              ))}
+          {teams.every(t => t.pretestCompleted) && teams.length > 0 && (
+            <div style={{ background: 'var(--panel-bg)', padding: '2rem', borderRadius: '12px', marginTop: '2rem', textAlign: 'left' }}>
+              <h3 style={{ color: 'var(--accent)', marginBottom: '1rem', textAlign: 'center' }}>Evaluasi Pretest</h3>
+              
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <h4 style={{ color: 'white', margin: 0 }}>Pertanyaan: {pretestData.question.question}</h4>
+              </div>
+
+              <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '2px solid var(--success)', marginBottom: '2rem' }}>
+                <h4 style={{ color: 'var(--success)', marginBottom: '0.5rem' }}>Kunci Jawaban Benar:</h4>
+                <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold' }}>{pretestData.question.answer}. {pretestData.question.options[pretestData.question.answer]}</p>
+              </div>
+              
+              <h4>Jawaban Tim:</h4>
+              <div className="grid-list">
+                {teams.map(t => (
+                  <div key={t.code} className="card" style={{ borderLeft: `6px solid ${t.lastPretestAnswer === pretestData.question.answer ? 'var(--success)' : 'var(--danger)'}` }}>
+                    <h4 style={{ margin: 0 }}>{t.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>({t.lastPretestAnswer || '-'})</span></h4>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
             {pretestData.index < pretestData.total - 1 ? (
@@ -139,7 +145,7 @@ export default function HostDashboard() {
                 style={{ flex: 1, fontSize: '1.2rem', padding: '1rem' }}
                 disabled={!teams.every(t => t.pretestCompleted)}
               >
-                Next Question
+                Pertanyaan Selanjutnya
               </button>
             ) : (
               <button 
@@ -148,90 +154,119 @@ export default function HostDashboard() {
                 style={{ flex: 1, fontSize: '1.2rem', padding: '1rem' }}
                 disabled={!teams.every(t => t.pretestCompleted)}
               >
-                End Pretest & Move to Main Dashboard
+                Akhiri Pretest & Pindah ke Dashboard Utama
               </button>
             )}
           </div>
         </div>
       )}
 
-      {(sessionState === 'waiting_teams' || sessionState === 'preparation' || sessionState === 'quiz') && (
+      {(sessionState === 'waiting_teams' || sessionState === 'preparation') && (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3>Teams Status</h3>
-            <span className="badge badge-success">Share these codes with the teams!</span>
+            <h3>Status Tim</h3>
           </div>
           <div className="grid-list">
             {teams.map(t => (
               <div key={t.code} className="card">
-                <h4>{t.name} (Code: {t.code})</h4>
-                <div style={{ marginBottom: '0.5rem', fontWeight: 'bold', color: 'var(--accent)' }}>Score: {t.score || 0}</div>
+                <h4>{t.name}</h4>
                 <div style={{ marginBottom: '1rem' }}>
                   {t.members.map(m => m.name).join(', ')}
                 </div>
                 {t.pretestCompleted && (
-                  <span className="badge badge-success" style={{ marginRight: '0.5rem' }}>Pretest Done</span>
+                  <span className="badge badge-success" style={{ marginRight: '0.5rem' }}>Pretest Selesai</span>
                 )}
-                <span className={`badge ${t.isReady ? 'badge-success' : 'badge-pending'}`}>
-                  {t.isReady ? 'Ready' : 'Not Ready'}
-                </span>
+                {sessionState === 'preparation' ? (
+                  <span className={`badge ${t.isReady ? 'badge-success' : 'badge-pending'}`}>
+                    {t.isReady ? 'KUIS SIAP' : 'KUIS BELUM SIAP'}
+                  </span>
+                ) : (
+                  <span className={`badge ${t.hasJoined ? 'badge-success' : 'badge-pending'}`}>
+                    {t.hasJoined ? 'Online' : 'Menunggu Login...'}
+                  </span>
+                )}
               </div>
             ))}
           </div>
           
-          {sessionState === 'preparation' && (
+          {sessionState === 'waiting_teams' && (
             <button 
-              className="btn" 
-              onClick={handleStartQuiz} 
-              disabled={!allTeamsReady}
-              style={{ marginTop: '2rem', width: '100%' }}
+              className="btn btn-accent" 
+              onClick={() => socket.emit('host_advance_state', { sessionCode, newState: 'pretest' })}
+              style={{ marginTop: '2rem', width: '100%', fontSize: '1.2rem', padding: '1rem' }}
             >
-              <Play style={{ marginRight: '8px', verticalAlign: 'middle' }} /> 
-              {allTeamsReady ? 'Start Quiz' : 'Waiting for all teams to be ready...'}
+              Semua Tim Telah Bergabung? Mulai Mode Pretest
             </button>
           )}
 
-          {sessionState === 'quiz' && (
-            <div className="card" style={{ marginTop: '2rem', textAlign: 'center' }}>
-              <h3 className="pulse-text" style={{ color: 'var(--secondary)' }}>Quiz is Live!</h3>
-              <p>Teams are currently answering questions.</p>
-              {quizData && (
-                <div style={{ marginTop: '1rem' }}>
-                  <p>Current Question: {quizData.index + 1} / {quizData.total}</p>
-
-                  {teams.every(t => t.quizCompleted) && teams.length > 0 && (
-                    <div style={{ background: 'var(--panel-bg)', padding: '2rem', borderRadius: '12px', marginTop: '2rem', textAlign: 'left' }}>
-                      <h3 style={{ color: 'var(--accent)', marginBottom: '1rem', textAlign: 'center' }}>Waktunya Diskusi</h3>
-                      <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '2px solid var(--success)', marginBottom: '2rem' }}>
-                        <h4 style={{ color: 'var(--success)', marginBottom: '0.5rem' }}>Kunci Jawaban Benar:</h4>
-                        <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold' }}>{quizData.question.answer}. {quizData.question.options[quizData.question.answer]}</p>
-                      </div>
-                      
-                      <h4>Jawaban & Alasan Tim:</h4>
-                      <div className="grid-list">
-                        {teams.map(t => (
-                          <div key={t.code} className="card" style={{ borderLeft: `6px solid ${t.lastAnswer === quizData.question.answer ? 'var(--success)' : 'var(--danger)'}` }}>
-                            <h4 style={{ margin: 0 }}>{t.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>({t.lastAnswer})</span></h4>
-                            <p style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>"{t.lastReasoning}"</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <button 
-                    className="btn btn-primary" 
-                    onClick={() => socket.emit('host_next_quiz_question', { sessionCode })}
-                    style={{ fontSize: '1.2rem', padding: '1rem', marginTop: '2rem' }}
-                    disabled={!teams.every(t => t.quizCompleted)}
-                  >
-                    {quizData.index < quizData.total - 1 ? 'Next Question' : 'Finish Quiz'}
-                  </button>
-                </div>
-              )}
-            </div>
+          {sessionState === 'preparation' && (
+            <button 
+              className="btn btn-primary" 
+              onClick={handleStartQuiz} 
+              disabled={!allTeamsReady}
+              style={{ marginTop: '2rem', width: '100%', fontSize: '1.2rem', padding: '1rem' }}
+            >
+              <Play style={{ marginRight: '8px', verticalAlign: 'middle' }} /> 
+              {allTeamsReady ? 'Mulai Kuis' : 'Menunggu semua tim siap kuis...'}
+            </button>
           )}
         </>
+      )}
+
+      {sessionState === 'quiz' && (
+        <div className="card" style={{ marginTop: '2rem', textAlign: 'center' }}>
+          <h3 className="pulse-text" style={{ color: 'var(--secondary)' }}>Kuis Sedang Berlangsung!</h3>
+          <p>Tim sedang menjawab pertanyaan.</p>
+          {quizData && (
+            <div style={{ marginTop: '1rem' }}>
+              <p>Pertanyaan Saat Ini: {quizData.index + 1} / {quizData.total}</p>
+
+              {teams.every(t => t.quizCompleted) && teams.length > 0 && (
+                <div style={{ background: 'var(--panel-bg)', padding: '2rem', borderRadius: '12px', marginTop: '2rem', textAlign: 'left' }}>
+                  <h3 style={{ color: 'var(--accent)', marginBottom: '1rem', textAlign: 'center' }}>Waktunya Diskusi</h3>
+                  
+                  <div style={{ background: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <h4 style={{ color: 'white', marginBottom: '1rem' }}>Pertanyaan: {quizData.question.question}</h4>
+                    {quizData.question.mediaType === 'image' && quizData.question.mediaUrl && (
+                      <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                        <img src={quizData.question.mediaUrl} style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px' }} alt="Materi" />
+                      </div>
+                    )}
+                    {quizData.question.mediaType === 'video' && quizData.question.mediaUrl && (
+                      <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                        <video src={quizData.question.mediaUrl} controls style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px' }} />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '2px solid var(--success)', marginBottom: '2rem' }}>
+                    <h4 style={{ color: 'var(--success)', marginBottom: '0.5rem' }}>Kunci Jawaban Benar:</h4>
+                    <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 'bold' }}>{quizData.question.answer}. {quizData.question.options[quizData.question.answer]}</p>
+                  </div>
+                  
+                  <h4>Jawaban & Alasan Tim:</h4>
+                  <div className="grid-list">
+                    {teams.map(t => (
+                      <div key={t.code} className="card" style={{ borderLeft: `6px solid ${t.lastAnswer === quizData.question.answer ? 'var(--success)' : 'var(--danger)'}` }}>
+                        <h4 style={{ margin: 0 }}>{t.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>({t.lastAnswer})</span></h4>
+                        <p style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>"{t.lastReasoning}"</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <button 
+                className="btn btn-primary" 
+                onClick={() => socket.emit('host_next_quiz_question', { sessionCode })}
+                style={{ fontSize: '1.2rem', padding: '1rem', marginTop: '2rem' }}
+                disabled={!teams.every(t => t.quizCompleted)}
+              >
+                {quizData.index < quizData.total - 1 ? 'Pertanyaan Selanjutnya' : 'Selesaikan Kuis'}
+              </button>
+            </div>
+          )}
+        </div>
       )}
 
       {sessionState === 'leaderboard' && (
@@ -244,7 +279,14 @@ export default function HostDashboard() {
               <div key={t.code} className="card" style={{ width: '300px', transform: index === 0 ? 'scale(1.1)' : 'scale(1)', border: `4px solid ${index === 0 ? '#fbbf24' : '#9ca3af'}`, background: '#ffffff' }}>
                 <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{index === 0 ? '🥇' : '🥈'}</div>
                 <h3 style={{ margin: 0, color: index === 0 ? 'var(--accent-hover)' : 'var(--text-secondary)' }}>{t.name}</h3>
-                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary)', margin: '1rem 0' }}>{t.score || 0} Pts</div>
+                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary)', margin: '1rem 0' }}>
+                  {t.score || 0}<span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>/200 Pts</span>
+                </div>
+                <div style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1rem', background: 'var(--surface-soft)', padding: '0.5rem', borderRadius: '8px' }}>
+                  <strong>Pretest:</strong> {t.pretestScore || 0}/100 <br/><span style={{fontSize: '0.8rem'}}>({t.correctPretest || 0} dari 3 Soal Benar)</span>
+                  <hr style={{ margin: '0.5rem 0', borderColor: '#e5e7eb' }} />
+                  <strong>Kuis:</strong> {t.quizScore || 0}/100 <br/><span style={{fontSize: '0.8rem'}}>({t.correctQuiz || 0} dari 5 Soal Benar)</span>
+                </div>
                 <p style={{ margin: 0, color: 'var(--text-muted)' }}>{t.members.map(m => m.name).join(', ')}</p>
               </div>
             ))}

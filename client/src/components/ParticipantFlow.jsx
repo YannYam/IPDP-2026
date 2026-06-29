@@ -13,11 +13,21 @@ export default function ParticipantFlow() {
   const [quizFeedback, setQuizFeedback] = useState(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [showJourney, setShowJourney] = useState(false);
+  const [step, setStep] = useState('login'); // 'login' or 'select_team'
 
   useEffect(() => {
     socket.on('team_joined', ({ sessionCode, team }) => {
       setSessionCode(sessionCode);
       setTeamInfo(team);
+    });
+
+    socket.on('session_teams_list', ({ teams }) => {
+      setTeams(teams);
+      setStep('select_team');
+    });
+
+    socket.on('error', (msg) => {
+      alert(msg);
     });
 
     socket.on('teams_assigned', ({ teams }) => {
@@ -69,12 +79,21 @@ export default function ParticipantFlow() {
       socket.off('pretest_question_update');
       socket.off('quiz_question_update');
       socket.off('quiz_answer_result');
+      socket.off('session_teams_list');
+      socket.off('error');
     };
   }, [teamInfo]);
 
-  const handleJoin = (e) => {
+  const handleCheckSession = (e) => {
     e.preventDefault();
-    socket.emit('team_join_session', { sessionCode: inputSession, teamCode: inputTeam });
+    socket.emit('check_session_teams', { sessionCode: inputSession });
+  };
+
+  const handleChangeTeam = () => {
+    socket.emit('team_leave_session', { sessionCode, teamCode: teamInfo.code });
+    setSessionCode(null);
+    setTeamInfo(null);
+    setStep('select_team');
   };
 
   const handleToggleReady = () => {
@@ -89,30 +108,61 @@ export default function ParticipantFlow() {
     socket.emit('team_submit_quiz', { sessionCode, teamCode: teamInfo.code, answer: selectedQuizAnswer, reasoning });
   };
 
-  if (!sessionCode) {
+  if (!sessionCode && step === 'login') {
     return (
       <div className="panel" style={{ maxWidth: '400px', margin: '0 auto', textAlign: 'center' }}>
-        <h2>Team Login</h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Enter the codes provided by the Host to log in your team device.</p>
-        <form onSubmit={handleJoin}>
+        <h2>Login Tim</h2>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Masukkan kode yang diberikan oleh Host untuk masuk.</p>
+        <form onSubmit={handleCheckSession}>
           <input 
             className="input-field" 
-            placeholder="Session ID" 
+            placeholder="ID Sesi" 
             value={inputSession} 
             onChange={e => setInputSession(e.target.value)} 
             required 
           />
-          <input 
-            className="input-field" 
-            placeholder="Team Code (e.g. TEAM-XXXX)" 
-            value={inputTeam} 
-            onChange={e => setInputTeam(e.target.value)} 
-            required 
-          />
           <button className="btn btn-accent" type="submit" style={{ width: '100%', marginTop: '1rem', fontSize: '1.1rem' }}>
-            Enter Session
+            Cek Sesi
           </button>
         </form>
+      </div>
+    );
+  }
+
+  if (!sessionCode && step === 'select_team') {
+    return (
+      <div className="panel" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+        <h2>Pilih Tim</h2>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Pilih tim Anda dari daftar di bawah.</p>
+        
+        {teams.length === 0 ? (
+          <div style={{ background: 'var(--panel-bg)', padding: '2rem', borderRadius: '12px' }}>
+            <div className="loading-spinner"></div>
+            <p style={{ marginTop: '1rem' }}>Host belum membagi tim. Menunggu...</p>
+          </div>
+        ) : (
+          <div className="grid-list" style={{ textAlign: 'left' }}>
+            {teams.map(t => (
+              <div 
+                key={t.code} 
+                className="card" 
+                style={{ cursor: t.hasJoined ? 'not-allowed' : 'pointer', opacity: t.hasJoined ? 0.6 : 1 }}
+                onClick={() => {
+                  if (!t.hasJoined) {
+                    socket.emit('team_join_session', { sessionCode: inputSession, teamCode: t.code });
+                  }
+                }}
+              >
+                <h4>{t.name}</h4>
+                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>{t.members.map(m => m.name).join(', ')}</p>
+                {t.hasJoined && <span className="badge badge-pending" style={{ marginTop: '0.5rem', display: 'inline-block' }}>Sudah Login</span>}
+              </div>
+            ))}
+          </div>
+        )}
+        <button className="btn btn-secondary" onClick={() => setStep('login')} style={{ marginTop: '2rem', width: '100%' }}>
+          Kembali
+        </button>
       </div>
     );
   }
@@ -131,8 +181,10 @@ export default function ParticipantFlow() {
         {!showJourney ? (
           <>
             <div className="card" style={{ display: 'inline-block', background: 'var(--surface-warm)', border: '4px solid var(--accent)', padding: '2rem 4rem', marginBottom: '2rem' }}>
-              <h3 style={{ color: 'var(--primary)', margin: 0, fontSize: '1.5rem' }}>Skor Akhir Tim Kamu</h3>
-              <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'var(--accent-hover)', marginTop: '0.5rem' }}>{currentTeamData?.score || 0}</div>
+              <h3 style={{ color: 'var(--primary)', margin: 0, fontSize: '1.5rem' }}>Total Skor Tim Kamu</h3>
+              <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'var(--accent-hover)', marginTop: '0.5rem' }}>
+                {currentTeamData?.score || 0}<span style={{ fontSize: '1.5rem', color: 'var(--text-muted)' }}>/200</span>
+              </div>
             </div>
             <div>
               <button className="btn btn-secondary" onClick={() => setShowJourney(true)} style={{ padding: '1rem 2rem', fontSize: '1.2rem' }}>
@@ -146,14 +198,20 @@ export default function ParticipantFlow() {
             <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
               <div style={{ textAlign: 'center' }}>
                 <h4 style={{ color: 'var(--text-muted)' }}>Skor Pretest</h4>
-                <div style={{ fontSize: '3rem', color: 'var(--primary)', fontWeight: 'bold' }}>{currentTeamData?.pretestScore || 0}</div>
-                <p style={{ fontSize: '0.9rem' }}>(Sebelum Materi)</p>
+                <div style={{ fontSize: '3rem', color: 'var(--primary)', fontWeight: 'bold' }}>
+                  {currentTeamData?.pretestScore || 0}<span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>/100</span>
+                </div>
+                <p style={{ fontSize: '1rem', margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>({currentTeamData?.correctPretest || 0} dari 3 Soal Benar)</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>(Sebelum Materi)</p>
               </div>
               <div style={{ fontSize: '2rem', color: 'var(--accent)' }}>➡️</div>
               <div style={{ textAlign: 'center' }}>
-                <h4 style={{ color: 'var(--text-muted)' }}>Skor Posttest</h4>
-                <div style={{ fontSize: '3rem', color: 'var(--success)', fontWeight: 'bold' }}>{currentTeamData?.quizScore || 0}</div>
-                <p style={{ fontSize: '0.9rem' }}>(Sesudah Materi)</p>
+                <h4 style={{ color: 'var(--text-muted)' }}>Skor Kuis</h4>
+                <div style={{ fontSize: '3rem', color: 'var(--success)', fontWeight: 'bold' }}>
+                  {currentTeamData?.quizScore || 0}<span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>/100</span>
+                </div>
+                <p style={{ fontSize: '1rem', margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>({currentTeamData?.correctQuiz || 0} dari 5 Soal Benar)</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>(Sesudah Materi)</p>
               </div>
             </div>
             <div style={{ marginTop: '3rem', textAlign: 'center' }}>
@@ -169,25 +227,35 @@ export default function ParticipantFlow() {
     return (
       <div className="panel waiting-phase">
         <h3 className="pulse-text" style={{ color: 'var(--primary)', fontSize: '2rem' }}>
-          {(sessionState === 'lobby' || sessionState === 'waiting_teams') ? 'Waiting for Host...' : 'Pretest is Active!'}
+          {(sessionState === 'lobby' || sessionState === 'waiting_teams') ? 'Menunggu Host...' : 'Pretest Dimulai!'}
         </h3>
         <p style={{ fontSize: '1.2rem', marginTop: '1rem' }}>
           {(sessionState === 'lobby' || sessionState === 'waiting_teams') 
-            ? 'The host is currently organizing the session. Please wait.' 
-            : 'Please look at the Host\'s screen and discuss the Pretest questions with your team!'}
+            ? 'Host sedang mengatur sesi. Harap tunggu.' 
+            : 'Silakan diskusikan pertanyaan Pretest dengan tim Anda!'}
         </p>
-        {sessionState === 'pretest' && !teamInfo?.pretestCompleted && (
-          <div style={{ marginTop: '2rem' }}>
-            <p style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Select your answer based on the Host's screen:</p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
-              {['A', 'B', 'C', 'D'].map(option => (
+        {sessionState === 'waiting_teams' && (
+          <button 
+            className="btn btn-secondary" 
+            onClick={handleChangeTeam} 
+            style={{ marginTop: '1rem' }}
+          >
+            Salah pilih tim? Ganti Tim
+          </button>
+        )}
+        {sessionState === 'pretest' && !teamInfo?.pretestCompleted && pretestData && (
+          <div className="card" style={{ marginTop: '2rem', textAlign: 'left', padding: '2rem' }}>
+            <h3 style={{ color: 'var(--accent)' }}>Pertanyaan {pretestData.index + 1}</h3>
+            <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>{pretestData.question.question}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+              {Object.entries(pretestData.question.options).map(([key, value]) => (
                 <button 
-                  key={option}
-                  className={`btn ${selectedPretestAnswer === option ? 'btn-accent' : 'btn-secondary'}`}
-                  onClick={() => setSelectedPretestAnswer(option)}
-                  style={{ width: '60px', height: '60px', fontSize: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  key={key}
+                  className={`btn ${selectedPretestAnswer === key ? 'btn-accent' : 'btn-secondary'}`}
+                  onClick={() => setSelectedPretestAnswer(key)}
+                  style={{ textAlign: 'left', padding: '1rem' }}
                 >
-                  {option}
+                  {key}. {value}
                 </button>
               ))}
             </div>
@@ -197,21 +265,26 @@ export default function ParticipantFlow() {
               disabled={!selectedPretestAnswer}
               style={{ width: '100%', padding: '1rem' }}
             >
-              Submit Pretest Answer
+              Kirim Jawaban Pretest
             </button>
           </div>
         )}
         {sessionState === 'pretest' && teamInfo?.pretestCompleted && !allTeamsPretestCompleted && (
           <div className="card" style={{ marginTop: '2rem', textAlign: 'center', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid var(--primary)' }}>
-            <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>✔ Answer Submitted</h3>
-            <p style={{ fontSize: '1.2rem', margin: 0 }}>Waiting for other teams to finish...</p>
+            <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>✔ Jawaban Terkirim</h3>
+            <p style={{ fontSize: '1.2rem', margin: 0 }}>Menunggu tim lain selesai...</p>
           </div>
         )}
         {sessionState === 'pretest' && teamInfo?.pretestCompleted && allTeamsPretestCompleted && (
           <div className="card" style={{ marginTop: '2rem', textAlign: 'center', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid var(--success)' }}>
-            <h3 style={{ color: 'var(--success)', marginBottom: '1rem' }}>✔ Pretest Complete!</h3>
-            <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>The correct answer was: <strong style={{ color: 'white' }}>{pretestData?.question.answer || 'B'}</strong></p>
-            <p style={{ fontSize: '1.5rem', color: 'var(--accent)', fontWeight: 'bold', margin: 0 }}>Team Score: {teamInfo?.score || 0}</p>
+            <h3 style={{ color: 'var(--success)', marginBottom: '1rem' }}>✔ Pretest Selesai!</h3>
+            <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Kunci Jawaban: <strong style={{ color: 'white' }}>{pretestData?.question.answer || 'B'}</strong></p>
+            <p style={{ fontSize: '1.5rem', color: 'var(--accent)', fontWeight: 'bold', margin: 0 }}>
+              Skor Pretest Sementara: {teamInfo?.pretestScore || 0}/100
+            </p>
+            <p style={{ fontSize: '1rem', color: 'var(--text-muted)', marginTop: '0.5rem', marginBottom: 0 }}>
+              ({teamInfo?.correctPretest || 0} dari {pretestData?.total || 3} Soal Benar)
+            </p>
           </div>
         )}
       </div>
@@ -223,8 +296,8 @@ export default function ParticipantFlow() {
     <div className="panel">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
-          <h2 style={{ marginBottom: '0.5rem' }}>{teamInfo?.name || 'Your Team'}</h2>
-          <div style={{ color: 'var(--text-muted)' }}>Members: {teamInfo?.members.map(m => m.name).join(', ')}</div>
+          <h2 style={{ marginBottom: '0.5rem' }}>{teamInfo?.name || 'Tim Kamu'}</h2>
+          <div style={{ color: 'var(--text-muted)' }}>Anggota: {teamInfo?.members.map(m => m.name).join(', ')}</div>
         </div>
         <span className="badge badge-success" style={{ fontSize: '1rem', padding: '0.5rem 1rem' }}>{teamInfo?.code}</span>
       </div>
@@ -289,22 +362,22 @@ export default function ParticipantFlow() {
           {sessionState === 'preparation' ? (
             <div className="waiting-phase">
               <div className="loading-spinner"></div>
-              <h3 className="pulse-text">Waiting Phase</h3>
-              <p>The quiz cannot begin until all teams click Ready.</p>
+              <h3 className="pulse-text">Fase Persiapan</h3>
+              <p>Kuis tidak dapat dimulai sampai semua tim menekan tombol Siap.</p>
               <div style={{ marginTop: '2rem' }}>
                 <button 
                   className={`btn ${teamInfo?.isReady ? 'btn-secondary' : 'btn-accent'}`} 
                   onClick={handleToggleReady}
                   style={{ fontSize: '1.2rem', padding: '1rem 2rem' }}
                 >
-                  {teamInfo?.isReady ? 'Cancel Ready State' : 'Mark Team as READY'}
+                  {teamInfo?.isReady ? 'Batal Siap' : 'Tandai Tim SIAP KUIS'}
                 </button>
               </div>
             </div>
           ) : quizData && isVideoPlaying && quizData.question.mediaType === 'video' ? (
             <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-              <h3 style={{ color: 'var(--accent)', marginBottom: '1rem' }}>Watch the Video carefully!</h3>
-              <p style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>The question will appear automatically after the video finishes.</p>
+              <h3 style={{ color: 'var(--accent)', marginBottom: '1rem' }}>Perhatikan Video baik-baik!</h3>
+              <p style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>Pertanyaan akan muncul otomatis setelah video selesai.</p>
               <video 
                 src={quizData.question.mediaUrl} 
                 autoPlay 
@@ -312,17 +385,17 @@ export default function ParticipantFlow() {
                 onEnded={() => setIsVideoPlaying(false)}
                 style={{ width: '100%', borderRadius: '12px', border: '1px solid var(--primary)' }}
               />
-              <button className="btn btn-secondary" onClick={() => setIsVideoPlaying(false)} style={{ marginTop: '1rem' }}>Skip Video (Debug)</button>
+              <button className="btn btn-secondary" onClick={() => setIsVideoPlaying(false)} style={{ marginTop: '1rem' }}>Lewati Video</button>
             </div>
           ) : quizData ? (
             <div className="card" style={{ padding: '2rem' }}>
-              <h3 style={{ color: 'var(--accent)' }}>Question {quizData.index + 1}</h3>
+              <h3 style={{ color: 'var(--accent)' }}>Pertanyaan {quizData.index + 1}</h3>
               
               {quizData.question.mediaType === 'image' && quizData.question.mediaUrl && (
                 <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
                   <img 
                     src={quizData.question.mediaUrl} 
-                    alt="Question Media" 
+                    alt="Materi Pertanyaan" 
                     style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: '12px', border: '1px solid var(--primary)' }} 
                   />
                 </div>
@@ -344,12 +417,12 @@ export default function ParticipantFlow() {
                 ))}
               </div>
 
-              <h4>Reasoning (Required)</h4>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Discuss with your team and explain why you chose this answer.</p>
+              <h4>Alasan (Wajib)</h4>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Diskusikan dengan tim dan jelaskan mengapa memilih jawaban ini.</p>
               <textarea 
                 className="input-field" 
                 rows="5" 
-                placeholder="Type your team's reasoning here..."
+                placeholder="Ketik alasan tim Anda di sini..."
                 value={reasoning}
                 onChange={(e) => setReasoning(e.target.value)}
                 disabled={quizFeedback !== null}
@@ -362,7 +435,7 @@ export default function ParticipantFlow() {
                   onClick={handleQuizDone}
                   style={{ marginTop: '1rem', width: '100%' }}
                 >
-                  Submit Team Answer
+                  Kirim Jawaban Tim
                 </button>
               ) : (
                 <div className="card" style={{ marginTop: '1rem', background: quizFeedback.isCorrect ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `2px solid ${quizFeedback.isCorrect ? 'var(--success)' : 'var(--danger)'}` }}>
@@ -377,7 +450,7 @@ export default function ParticipantFlow() {
             </div>
           ) : (
             <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-              Loading Quiz Question...
+              Memuat Pertanyaan Kuis...
             </div>
           )}
         </div>
