@@ -14,6 +14,25 @@ export default function ParticipantFlow() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [showJourney, setShowJourney] = useState(false);
   const [step, setStep] = useState('login'); // 'login' or 'select_team'
+  const [currentChapter, setCurrentChapter] = useState(0);
+
+  const materialChapters = [
+    {
+      title: "Bab 1: Banjir dan Dampaknya",
+      image: "https://images.unsplash.com/photo-1542385151-efd9000785a0?auto=format&fit=crop&w=800&q=80",
+      content: "Banjir merupakan bencana alam yang sering terjadi di musim hujan. Dampaknya bisa merusak lingkungan, infrastruktur, dan menyebarkan penyakit. Memahami penyebab banjir adalah langkah pertama untuk mencegahnya."
+    },
+    {
+      title: "Bab 2: Peran Sampah Terhadap Banjir",
+      image: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80",
+      content: "Pembuangan sampah sembarangan ke selokan dan sungai menyebabkan aliran air tersumbat. Saat volume air meningkat ketika hujan lebat, air tidak dapat mengalir dengan lancar sehingga meluap ke pemukiman."
+    },
+    {
+      title: "Bab 3: Solusi dan Pencegahan",
+      image: "https://images.unsplash.com/photo-1563201515-adbe35cbfc45?auto=format&fit=crop&w=800&q=80",
+      content: "Pencegahan dimulai dari kebiasaan kecil: membuang sampah pada tempatnya, menjaga kebersihan saluran air, dan menanam pohon sebagai daerah resapan. Kerja sama masyarakat sangat penting dalam penanggulangan banjir."
+    }
+  ];
 
   useEffect(() => {
     socket.on('team_joined', ({ sessionCode, team }) => {
@@ -319,29 +338,48 @@ export default function ParticipantFlow() {
 
       {activeTab === 'material' && (
         <div className="card" style={{ padding: '2rem' }}>
-          <h3 style={{ color: 'var(--primary)' }}>Materi Belajar</h3>
-          <p style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>Pelajari modul dan tonton video sebelum memulai kuis bersama tim.</p>
+          <h3 style={{ color: 'var(--primary)', marginBottom: '1.5rem' }}>Materi Belajar - {materialChapters[currentChapter].title}</h3>
           
-          <div style={{ marginBottom: '2rem' }}>
-            <iframe 
-              width="100%" 
-              height="315" 
-              src="https://www.youtube.com/embed/vQ_a7_xP-G0" 
-              title="WebSocket Tutorial" 
-              frameBorder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowFullScreen
-              style={{ borderRadius: '12px', border: '2px solid var(--primary-light)' }}
-            ></iframe>
+          <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+            <img 
+              src={materialChapters[currentChapter].image} 
+              alt={materialChapters[currentChapter].title} 
+              style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: '12px', border: '1px solid var(--primary)' }}
+            />
           </div>
 
-          <ul style={{ lineHeight: '2', color: 'var(--text-main)', marginBottom: '2rem' }}>
-            <li><strong>Modul 1:</strong> Pengantar WebSockets dan Sinkronisasi data Real-time.</li>
-            <li><strong>Modul 2:</strong> Manajemen State Kolaboratif di React.</li>
-          </ul>
+          <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-main)', marginBottom: '2rem', textAlign: 'left' }}>
+            <p>{materialChapters[currentChapter].content}</p>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => setCurrentChapter(prev => Math.max(0, prev - 1))}
+              disabled={currentChapter === 0}
+              style={{ padding: '0.75rem 1.5rem' }}
+            >
+              ← Prev
+            </button>
+            <span style={{ color: 'var(--text-muted)', fontWeight: 'bold' }}>
+              Bagian {currentChapter + 1} / {materialChapters.length}
+            </span>
+            <button 
+              className="btn btn-primary" 
+              onClick={() => setCurrentChapter(prev => Math.min(materialChapters.length - 1, prev + 1))}
+              disabled={currentChapter === materialChapters.length - 1}
+              style={{ padding: '0.75rem 1.5rem' }}
+            >
+              Next →
+            </button>
+          </div>
+
           <button 
             className="btn btn-secondary" 
-            onClick={() => setActiveTab('selection')}
+            onClick={() => {
+              setActiveTab('selection');
+              setCurrentChapter(0);
+            }}
             style={{ width: '100%', marginTop: '1rem' }}
           >
             ← Kembali ke Pilihan

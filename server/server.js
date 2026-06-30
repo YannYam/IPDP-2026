@@ -27,92 +27,109 @@ const sessions = {};
 
 const PRETEST_QUESTIONS = [
   {
-    question: "Apa tujuan utama penggunaan WebSocket dalam aplikasi kita?",
+    question: "Banjir yang sering terjadi di kawasan Telang sekitar Universitas Trunojoyo Madura umumnya disebabkan oleh....",
     options: {
-      A: "Untuk mengatur gaya halaman (CSS)",
-      B: "Untuk membangun komunikasi real-time dua arah",
-      C: "Untuk menyimpan data secara lokal",
-      D: "Untuk menggantikan HTML"
+      A: "Letusan gunung berapi",
+      B: "Curah hujan tinggi yang disertai sistem drainase yang kurang optimal",
+      C: "Gempa bumi",
+      D: "Kebakaran hutan"
     },
     answer: "B"
   },
   {
-    question: "Fitur manakah yang paling penting untuk Kuis Berbasis Tim?",
+    question: "Salah satu aktivitas manusia yang dapat memperparah banjir di kawasan Telang adalah....",
     options: {
-      A: "Mode pemain tunggal",
-      B: "Ketersediaan secara offline",
-      C: "Sinkronisasi state (status) antar perangkat tim",
-      D: "Halaman HTML statis"
+      A: "Menanam pohon",
+      B: "Membersihkan saluran drainase",
+      C: "Membuang sampah ke saluran air",
+      D: "Membuat biopori"
     },
     answer: "C"
   },
   {
-    question: "Mengapa kita mewajibkan pengisian alasan untuk setiap jawaban kuis?",
+    question: "Dampak banjir yang paling mungkin dialami mahasiswa Universitas Trunojoyo Madura adalah....",
     options: {
-      A: "Agar kuis menjadi lebih lama",
-      B: "Untuk menguji kecepatan mengetik",
-      C: "Untuk mendorong diskusi tim dan berpikir kritis",
-      D: "Karena database membutuhkan teks"
+      A: "Jalan menuju kampus tergenang sehingga aktivitas belajar terganggu",
+      B: "Nilai kuliah meningkat",
+      C: "Kampus menjadi lebih luas",
+      D: "Cuaca menjadi lebih dingin"
     },
-    answer: "C"
+    answer: "A"
+  },
+  {
+    question: "Mengapa pembangunan yang pesat dapat meningkatkan risiko banjir?",
+    options: {
+      A: "Karena jumlah pohon semakin banyak",
+      B: "Karena permukaan tanah menjadi kedap air sehingga air hujan sulit meresap",
+      C: "Karena hujan menjadi berhenti",
+      D: "Karena sungai menjadi lebih dalam"
+    },
+    answer: "B"
+  },
+  {
+    question: "Tindakan yang paling tepat untuk membantu mengurangi banjir di lingkungan kampus adalah....",
+    options: {
+      A: "Menutup saluran drainase",
+      B: "Menjaga kebersihan saluran air dan tidak membuang sampah sembarangan",
+      C: "Membuang sampah saat hujan deras",
+      D: "Menimbun saluran air"
+    },
+    answer: "B"
   }
 ];
 
 const POSTTEST_QUESTIONS = [
   {
-    mediaUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    mediaType: "video",
-    question: "Berdasarkan video, mengapa Socket.io digunakan dalam aplikasi ini dibandingkan HTTP polling tradisional?",
+    question: "Setelah mempelajari penyebab banjir di Telang, faktor yang paling memengaruhi terjadinya genangan adalah....",
     options: {
-      A: "Sepenuhnya bergantung pada MongoDB untuk mendorong pembaruan",
-      B: "Menyediakan sinkronisasi dua arah berbasis event dengan latensi rendah",
-      C: "Satu-satunya cara untuk mengatur gaya komponen React secara dinamis"
-    },
-    answer: "B"
-  },
-  {
-    mediaUrl: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800",
-    mediaType: "image",
-    question: "Berdasarkan logo React di atas, manakah pernyataan berikut yang benar?",
-    options: {
-      A: "React menggunakan virtual DOM",
-      B: "React adalah framework backend",
-      C: "React hanya mendukung class components"
+      A: "Intensitas hujan yang tinggi disertai drainase yang tidak mampu mengalirkan air secara optimal",
+      B: "Aktivitas nelayan",
+      C: "Perubahan arah angin",
+      D: "Letusan gunung api"
     },
     answer: "A"
   },
   {
-    mediaType: "text",
-    question: "Apa keunggulan utama menggunakan pola manajemen state seperti Zustand dibandingkan Context API biasa?",
+    question: "Apabila saluran drainase dipenuhi sampah plastik, maka kemungkinan yang terjadi adalah....",
     options: {
-      A: "Zustand memerlukan lebih banyak boilerplate kode",
-      B: "Zustand meminimalkan re-render yang tidak perlu tanpa perlu membungkus komponen dengan Provider",
-      C: "Zustand hanya dapat digunakan pada aplikasi berbasis class components"
-    },
-    answer: "B"
-  },
-  {
-    mediaType: "text",
-    question: "Dalam implementasi Socket.io, apa fungsi utama dari `io.to(room).emit()`?",
-    options: {
-      A: "Mengirimkan pesan ke satu socket id spesifik",
-      B: "Mengirim pesan kepada semua client yang terhubung di server",
-      C: "Mengirim pesan secara spesifik kepada kelompok (room) klien tertentu"
+      A: "Air mengalir lebih cepat",
+      B: "Air hujan mudah meresap ke tanah",
+      C: "Aliran air terhambat sehingga risiko banjir meningkat",
+      D: "Tidak ada perubahan"
     },
     answer: "C"
   },
   {
-    mediaType: "text",
-    question: "Mengapa penting menyimpan state kolaboratif (seperti skor atau kesiapan tim) di server, bukan di browser masing-masing?",
+    question: "Jika Anda melihat genangan air mulai terbentuk di sekitar kampus akibat saluran tersumbat, tindakan yang paling tepat adalah....",
     options: {
-      A: "Agar browser tidak perlu mengunduh file HTML",
-      B: "Untuk menjaga integritas data dan mencegah manipulasi (cheat) dari sisi klien",
-      C: "Karena React tidak mendukung penyimpanan state lokal"
+      A: "Membiarkannya",
+      B: "Membersihkan atau melaporkan kepada pihak yang berwenang",
+      C: "Menambah sampah ke saluran",
+      D: "Menunggu hujan berhenti"
+    },
+    answer: "B"
+  },
+  {
+    question: "Salah satu cara meningkatkan resapan air di kawasan kampus adalah....",
+    options: {
+      A: "Menambah area beraspal",
+      B: "Memperbanyak ruang terbuka hijau dan lubang resapan",
+      C: "Menutup seluruh lahan kosong",
+      D: "Menutup drainase"
+    },
+    answer: "B"
+  },
+  {
+    question: "Berdasarkan kondisi banjir di Telang, solusi yang paling efektif dilakukan secara bersama adalah....",
+    options: {
+      A: "Menunggu bantuan pemerintah saja",
+      B: "Menjaga kebersihan drainase, mengurangi sampah plastik, dan mendukung penambahan daerah resapan",
+      C: "Menutup seluruh saluran air",
+      D: "Membiarkan genangan mengering sendiri"
     },
     answer: "B"
   }
 ];
-
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
