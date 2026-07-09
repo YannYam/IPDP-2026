@@ -250,6 +250,17 @@ export default function HostDashboard() {
                       <div key={t.code} className="card" style={{ borderLeft: `6px solid ${t.lastAnswer === quizData.question.answer ? 'var(--success)' : 'var(--danger)'}` }}>
                         <h4 style={{ margin: 0 }}>{t.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>({t.lastAnswer})</span></h4>
                         <p style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>"{t.lastReasoning}"</p>
+                        {t.reasoningDetails && t.reasoningDetails.length > 0 && (
+                          <div style={{ marginTop: '0.5rem', background: 'rgba(0,0,0,0.2)', padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>Skor Alasan: </span>
+                            <span style={{ fontWeight: 'bold', color: 'var(--accent)' }}>
+                              {t.reasoningDetails[t.reasoningDetails.length - 1]?.score || 0}/{t.reasoningDetails[t.reasoningDetails.length - 1]?.maxScore || 20}
+                            </span>
+                            <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
+                              ({t.reasoningDetails[t.reasoningDetails.length - 1]?.matchedKeywords || 0}/{t.reasoningDetails[t.reasoningDetails.length - 1]?.totalKeywords || 0} kata kunci)
+                            </span>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -276,16 +287,18 @@ export default function HostDashboard() {
           
           <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
             {[...teams].sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 2).map((t, index) => (
-              <div key={t.code} className="card" style={{ width: '300px', transform: index === 0 ? 'scale(1.1)' : 'scale(1)', border: `4px solid ${index === 0 ? '#fbbf24' : '#9ca3af'}`, background: '#ffffff' }}>
+              <div key={t.code} className="card" style={{ width: '320px', transform: index === 0 ? 'scale(1.1)' : 'scale(1)', border: `4px solid ${index === 0 ? '#fbbf24' : '#9ca3af'}`, background: '#ffffff' }}>
                 <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{index === 0 ? '🥇' : '🥈'}</div>
                 <h3 style={{ margin: 0, color: index === 0 ? 'var(--accent-hover)' : 'var(--text-secondary)' }}>{t.name}</h3>
                 <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary)', margin: '1rem 0' }}>
-                  {t.score || 0}<span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>/200 Pts</span>
+                  {t.score || 0}<span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>/{100 + 100 + (t.maxReasoningScore || 100)} Pts</span>
                 </div>
-                <div style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1rem', background: 'var(--surface-soft)', padding: '0.5rem', borderRadius: '8px' }}>
+                <div style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1rem', background: 'var(--surface-soft)', padding: '0.75rem', borderRadius: '8px' }}>
                   <strong>Pretest:</strong> {t.pretestScore || 0}/100 <br/><span style={{fontSize: '0.8rem'}}>({t.correctPretest || 0} dari 3 Soal Benar)</span>
                   <hr style={{ margin: '0.5rem 0', borderColor: '#e5e7eb' }} />
-                  <strong>Kuis:</strong> {t.quizScore || 0}/100 <br/><span style={{fontSize: '0.8rem'}}>({t.correctQuiz || 0} dari 5 Soal Benar)</span>
+                  <strong>Pilihan Ganda:</strong> {t.quizScore || 0}/100 <br/><span style={{fontSize: '0.8rem'}}>({t.correctQuiz || 0} dari 5 Soal Benar)</span>
+                  <hr style={{ margin: '0.5rem 0', borderColor: '#e5e7eb' }} />
+                  <strong>Alasan (Essai):</strong> {t.totalReasoningScore || 0}/{t.maxReasoningScore || 100} <br/><span style={{fontSize: '0.8rem'}}>PySastrawi Scoring</span>
                 </div>
                 <p style={{ margin: 0, color: 'var(--text-muted)' }}>{t.members.map(m => m.name).join(', ')}</p>
               </div>

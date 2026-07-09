@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const { execFile } = require('child_process');
 
 const app = express();
 const server = http.createServer(app);
@@ -87,7 +88,8 @@ const POSTTEST_QUESTIONS = [
       C: "Perubahan arah angin",
       D: "Letusan gunung api"
     },
-    answer: "A"
+    answer: "A",
+    referenceReasoning: "Banjir di kawasan Telang disebabkan oleh intensitas curah hujan yang tinggi dan sistem drainase yang tidak mampu menampung serta mengalirkan air secara optimal sehingga terjadi genangan."
   },
   {
     question: "Apabila saluran drainase dipenuhi sampah plastik, maka kemungkinan yang terjadi adalah....",
@@ -97,7 +99,8 @@ const POSTTEST_QUESTIONS = [
       C: "Aliran air terhambat sehingga risiko banjir meningkat",
       D: "Tidak ada perubahan"
     },
-    answer: "C"
+    answer: "C",
+    referenceReasoning: "Sampah plastik yang menumpuk di saluran drainase akan menyumbat aliran air sehingga air tidak dapat mengalir dengan lancar dan meluap ke permukaan menyebabkan risiko banjir meningkat."
   },
   {
     question: "Jika Anda melihat genangan air mulai terbentuk di sekitar kampus akibat saluran tersumbat, tindakan yang paling tepat adalah....",
@@ -107,7 +110,8 @@ const POSTTEST_QUESTIONS = [
       C: "Menambah sampah ke saluran",
       D: "Menunggu hujan berhenti"
     },
-    answer: "B"
+    answer: "B",
+    referenceReasoning: "Tindakan yang tepat adalah segera membersihkan saluran yang tersumbat atau melaporkan kepada pihak berwenang agar masalah dapat ditangani dengan cepat dan mencegah genangan semakin parah."
   },
   {
     question: "Salah satu cara meningkatkan resapan air di kawasan kampus adalah....",
@@ -117,7 +121,8 @@ const POSTTEST_QUESTIONS = [
       C: "Menutup seluruh lahan kosong",
       D: "Menutup drainase"
     },
-    answer: "B"
+    answer: "B",
+    referenceReasoning: "Memperbanyak ruang terbuka hijau dan lubang resapan biopori membantu air hujan meresap ke dalam tanah sehingga mengurangi volume air permukaan dan risiko banjir di kawasan kampus."
   },
   {
     question: "Berdasarkan kondisi banjir di Telang, solusi yang paling efektif dilakukan secara bersama adalah....",
@@ -127,9 +132,52 @@ const POSTTEST_QUESTIONS = [
       C: "Menutup seluruh saluran air",
       D: "Membiarkan genangan mengering sendiri"
     },
-    answer: "B"
+    answer: "B",
+    referenceReasoning: "Solusi efektif memerlukan kerja sama masyarakat dengan menjaga kebersihan saluran drainase, mengurangi penggunaan dan pembuangan sampah plastik sembarangan, serta mendukung penambahan area resapan air untuk mengurangi banjir."
   }
 ];
+
+// Max reasoning score per question
+const REASONING_POINTS_PER_QUESTION = 20;
+
+// Helper: Score reasoning using PySastrawi Python script
+function scoreReasoning(studentReasoning, referenceReasoning, maxPoints = REASONING_POINTS_PER_QUESTION) {
+  return new Promise((resolve) => {
+    const data = JSON.stringify({
+      student: studentReasoning,
+      reference: referenceReasoning,
+      max_points: maxPoints
+    });
+    const b64 = Buffer.from(data).toString('base64');
+    const scriptPath = path.join(__dirname, 'score_reasoning.py');
+    
+    execFile('python', [scriptPath, b64], { timeout: 10000 }, (error, stdout, stderr) => {
+      if (error) {
+        console.error('Python scoring error:', error.message);
+        resolve({ score: 0, matched_keywords: 0, total_keywords: 0 });
+        return;
+      }
+      try {
+        const result = JSON.parse(stdout.trim());
+        if (result.error) {
+          console.error('Scoring script error:', result.error);
+          resolve({ score: 0, matched_keywords: 0, total_keywords: 0 });
+        } else {
+          resolve(result);
+        }
+      } catch (e) {
+        console.error('Failed to parse scoring output:', stdout);
+        resolve({ score: 0, matched_keywords: 0, total_keywords: 0 });
+      }
+    });
+  });
+}
+// Helper: Strip sensitive fields from questions before sending to clients
+function sanitizeQuestion(q) {
+  const { referenceReasoning, ...safe } = q;
+  return safe;
+}
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
@@ -331,7 +379,7 @@ io.on('connection', (socket) => {
         io.to(sessionCode).emit('quiz_question_update', {
           index: 0,
           total: POSTTEST_QUESTIONS.length,
-          question: POSTTEST_QUESTIONS[0]
+          question: sanitizeQuestion(POSTTEST_QUESTIONS[0])
         });
       } else {
         socket.emit('error', 'Not all teams are ready');
@@ -339,8 +387,8 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Team submits quiz
-  socket.on('team_submit_quiz', ({ sessionCode, teamCode, answer, reasoning }) => {
+  // Team submits quiz (with essay scoring for reasoning)
+  socket.on('team_submit_quiz', async ({ sessionCode, teamCode, answer, reasoning }) => {
     if (sessions[sessionCode]) {
       const session = sessions[sessionCode];
       const team = session.teams.find(t => t.code === teamCode);
@@ -350,15 +398,57 @@ io.on('connection', (socket) => {
         team.lastReasoning = reasoning;
         const currentQ = POSTTEST_QUESTIONS[session.currentQuizIndex];
         const isCorrect = currentQ && answer === currentQ.answer;
+        
+        // Initialize reasoning tracking arrays if not present
+        if (!team.reasoningScores) team.reasoningScores = [];
+        if (!team.reasoningDetails) team.reasoningDetails = [];
+        
+        // Score the multiple choice answer
+        const mcScore = isCorrect ? Math.round((1 / POSTTEST_QUESTIONS.length) * 100) : 0;
         if (isCorrect) {
           team.correctQuiz = (team.correctQuiz || 0) + 1;
         }
         team.quizScore = Math.round((team.correctQuiz / POSTTEST_QUESTIONS.length) * 100) || 0;
-        team.score = (team.pretestScore || 0) + team.quizScore;
+
+        // Score the reasoning essay using PySastrawi
+        let reasoningResult = { score: 0, matched_keywords: 0, total_keywords: 0 };
+        if (reasoning && reasoning.trim() && currentQ?.referenceReasoning) {
+          try {
+            reasoningResult = await scoreReasoning(reasoning, currentQ.referenceReasoning);
+          } catch (err) {
+            console.error('Essay scoring failed:', err);
+          }
+        }
+
+        // Store per-question reasoning score
+        team.reasoningScores.push(reasoningResult.score);
+        team.reasoningDetails.push({
+          questionIndex: session.currentQuizIndex,
+          score: reasoningResult.score,
+          maxScore: REASONING_POINTS_PER_QUESTION,
+          matchedKeywords: reasoningResult.matched_keywords,
+          totalKeywords: reasoningResult.total_keywords
+        });
+
+        // Calculate total reasoning score
+        team.totalReasoningScore = team.reasoningScores.reduce((sum, s) => sum + s, 0);
+        team.maxReasoningScore = POSTTEST_QUESTIONS.length * REASONING_POINTS_PER_QUESTION; // e.g. 5 x 20 = 100
         
-        const scoreAdded = isCorrect ? Math.round((1 / POSTTEST_QUESTIONS.length) * 100) : 0;
-        // Send immediate feedback to the specific team's socket
-        socket.emit('quiz_answer_result', { isCorrect, correctAnswer: currentQ?.answer, scoreAdded });
+        // Total score = pretest + quiz MC + reasoning
+        team.score = (team.pretestScore || 0) + team.quizScore + team.totalReasoningScore;
+        
+        // Send immediate feedback with reasoning score
+        socket.emit('quiz_answer_result', { 
+          isCorrect, 
+          correctAnswer: currentQ?.answer, 
+          mcScoreAdded: mcScore,
+          reasoningScore: reasoningResult.score,
+          reasoningMaxScore: REASONING_POINTS_PER_QUESTION,
+          matchedKeywords: reasoningResult.matched_keywords,
+          totalKeywords: reasoningResult.total_keywords,
+          totalReasoningScore: team.totalReasoningScore,
+          maxReasoningScore: team.maxReasoningScore
+        });
         io.to(sessionCode).emit('readiness_update', session.teams);
       }
     }
@@ -376,7 +466,7 @@ io.on('connection', (socket) => {
         io.to(sessionCode).emit('quiz_question_update', {
           index: session.currentQuizIndex,
           total: POSTTEST_QUESTIONS.length,
-          question: POSTTEST_QUESTIONS[session.currentQuizIndex]
+          question: sanitizeQuestion(POSTTEST_QUESTIONS[session.currentQuizIndex])
         });
       } else {
         // Quiz finished

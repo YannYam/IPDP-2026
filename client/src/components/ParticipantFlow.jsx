@@ -202,7 +202,10 @@ export default function ParticipantFlow() {
             <div className="card" style={{ display: 'inline-block', background: 'var(--surface-warm)', border: '4px solid var(--accent)', padding: '2rem 4rem', marginBottom: '2rem' }}>
               <h3 style={{ color: 'var(--primary)', margin: 0, fontSize: '1.5rem' }}>Total Skor Tim Kamu</h3>
               <div style={{ fontSize: '4rem', fontWeight: 'bold', color: 'var(--accent-hover)', marginTop: '0.5rem' }}>
-                {currentTeamData?.score || 0}<span style={{ fontSize: '1.5rem', color: 'var(--text-muted)' }}>/200</span>
+                {currentTeamData?.score || 0}<span style={{ fontSize: '1.5rem', color: 'var(--text-muted)' }}>/{100 + 100 + (currentTeamData?.maxReasoningScore || 100)}</span>
+              </div>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                Pretest ({currentTeamData?.pretestScore || 0}) + PG ({currentTeamData?.quizScore || 0}) + Alasan ({currentTeamData?.totalReasoningScore || 0})
               </div>
             </div>
             <div>
@@ -214,26 +217,73 @@ export default function ParticipantFlow() {
         ) : (
           <div className="card" style={{ background: 'var(--panel-bg)', textAlign: 'left', marginTop: '1rem' }}>
             <h3 style={{ color: 'var(--accent)', marginBottom: '2rem', textAlign: 'center' }}>Perjalanan Belajar Tim</h3>
-            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
-              <div style={{ textAlign: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch', flexWrap: 'wrap', gap: '1.5rem' }}>
+              {/* Pretest Score */}
+              <div style={{ textAlign: 'center', flex: '1 1 150px', minWidth: '150px', background: 'rgba(0,0,0,0.15)', borderRadius: '12px', padding: '1.5rem' }}>
                 <h4 style={{ color: 'var(--text-muted)' }}>Skor Pretest</h4>
-                <div style={{ fontSize: '3rem', color: 'var(--primary)', fontWeight: 'bold' }}>
-                  {currentTeamData?.pretestScore || 0}<span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>/100</span>
+                <div style={{ fontSize: '2.5rem', color: 'var(--primary)', fontWeight: 'bold' }}>
+                  {currentTeamData?.pretestScore || 0}<span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>/100</span>
                 </div>
-                <p style={{ fontSize: '1rem', margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>({currentTeamData?.correctPretest || 0} dari 3 Soal Benar)</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>(Sebelum Materi)</p>
+                <p style={{ fontSize: '0.85rem', margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>({currentTeamData?.correctPretest || 0} dari {pretestData?.total || 3} Soal Benar)</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem', marginBottom: 0 }}>(Sebelum Materi)</p>
               </div>
-              <div style={{ fontSize: '2rem', color: 'var(--accent)' }}>➡️</div>
-              <div style={{ textAlign: 'center' }}>
-                <h4 style={{ color: 'var(--text-muted)' }}>Skor Kuis</h4>
-                <div style={{ fontSize: '3rem', color: 'var(--success)', fontWeight: 'bold' }}>
-                  {currentTeamData?.quizScore || 0}<span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>/100</span>
+
+              <div style={{ display: 'flex', alignItems: 'center', fontSize: '1.5rem', color: 'var(--accent)' }}>➡️</div>
+
+              {/* Quiz MC Score */}
+              <div style={{ textAlign: 'center', flex: '1 1 150px', minWidth: '150px', background: 'rgba(0,0,0,0.15)', borderRadius: '12px', padding: '1.5rem' }}>
+                <h4 style={{ color: 'var(--text-muted)' }}>Skor Pilihan Ganda</h4>
+                <div style={{ fontSize: '2.5rem', color: 'var(--success)', fontWeight: 'bold' }}>
+                  {currentTeamData?.quizScore || 0}<span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>/100</span>
                 </div>
-                <p style={{ fontSize: '1rem', margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>({currentTeamData?.correctQuiz || 0} dari 5 Soal Benar)</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>(Sesudah Materi)</p>
+                <p style={{ fontSize: '0.85rem', margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>({currentTeamData?.correctQuiz || 0} dari 5 Soal Benar)</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem', marginBottom: 0 }}>(Sesudah Materi)</p>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', fontSize: '1.5rem', color: 'var(--accent)' }}>➕</div>
+
+              {/* Reasoning Essay Score */}
+              <div style={{ textAlign: 'center', flex: '1 1 150px', minWidth: '150px', background: 'rgba(0,0,0,0.15)', borderRadius: '12px', padding: '1.5rem' }}>
+                <h4 style={{ color: 'var(--text-muted)' }}>Skor Alasan (Essai)</h4>
+                <div style={{ fontSize: '2.5rem', color: 'var(--accent)', fontWeight: 'bold' }}>
+                  {currentTeamData?.totalReasoningScore || 0}<span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>/{currentTeamData?.maxReasoningScore || 100}</span>
+                </div>
+                <p style={{ fontSize: '0.85rem', margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>PySastrawi Scoring</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem', marginBottom: 0 }}>(Kualitas Alasan)</p>
               </div>
             </div>
-            <div style={{ marginTop: '3rem', textAlign: 'center' }}>
+
+            {/* Per-question reasoning breakdown */}
+            {currentTeamData?.reasoningDetails && currentTeamData.reasoningDetails.length > 0 && (
+              <div style={{ marginTop: '2rem' }}>
+                <h4 style={{ color: 'var(--accent)', marginBottom: '1rem', textAlign: 'center' }}>Detail Skor Alasan Per Soal</h4>
+                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                  {currentTeamData.reasoningDetails.map((detail, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '0.75rem 1rem', borderRadius: '8px' }}>
+                      <span style={{ color: 'var(--text-muted)' }}>Soal {detail.questionIndex + 1}</span>
+                      <div style={{ textAlign: 'right' }}>
+                        <span style={{ fontWeight: 'bold', color: detail.score > 0 ? 'var(--accent)' : 'var(--danger)' }}>{detail.score}/{detail.maxScore}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>({detail.matchedKeywords}/{detail.totalKeywords} kata kunci)</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Grand Total */}
+            <div style={{ marginTop: '2rem', textAlign: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '1.5rem', border: '2px solid var(--accent)' }}>
+              <h4 style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Total Skor Keseluruhan</h4>
+              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: 'var(--accent-hover)' }}>
+                {currentTeamData?.score || 0}
+                <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>/{100 + 100 + (currentTeamData?.maxReasoningScore || 100)}</span>
+              </div>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.5rem 0 0' }}>
+                Pretest ({currentTeamData?.pretestScore || 0}) + Pilihan Ganda ({currentTeamData?.quizScore || 0}) + Alasan ({currentTeamData?.totalReasoningScore || 0})
+              </p>
+            </div>
+
+            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
               <button className="btn btn-primary" onClick={() => setShowJourney(false)}>Kembali</button>
             </div>
           </div>
@@ -481,7 +531,34 @@ export default function ParticipantFlow() {
                     {quizFeedback.isCorrect ? 'Benar!' : 'Salah!'}
                   </h3>
                   <p>Jawaban yang benar adalah <strong>{quizFeedback.correctAnswer}</strong>.</p>
-                  {quizFeedback.isCorrect && <p style={{ fontSize: '1.2rem', color: 'var(--success)' }}>Skor bertambah: +{quizFeedback.scoreAdded}</p>}
+                  
+                  {/* MC Score */}
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+                    <div style={{ flex: 1, minWidth: '140px', background: 'rgba(0,0,0,0.2)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Skor Pilihan Ganda</div>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: quizFeedback.isCorrect ? 'var(--success)' : 'var(--danger)' }}>
+                        +{quizFeedback.mcScoreAdded || 0}
+                      </div>
+                    </div>
+                    
+                    {/* Reasoning Score */}
+                    <div style={{ flex: 1, minWidth: '140px', background: 'rgba(0,0,0,0.2)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Skor Alasan (Essai)</div>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--accent)' }}>
+                        +{quizFeedback.reasoningScore || 0}<span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>/{quizFeedback.reasoningMaxScore || 20}</span>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+                        Kata kunci cocok: {quizFeedback.matchedKeywords || 0}/{quizFeedback.totalKeywords || 0}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Total Reasoning Accumulated */}
+                  <div style={{ marginTop: '1rem', background: 'rgba(0,0,0,0.15)', borderRadius: '10px', padding: '0.75rem 1rem', textAlign: 'center' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total Skor Alasan Kumulatif: </span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--accent)', fontSize: '1.1rem' }}>{quizFeedback.totalReasoningScore || 0}/{quizFeedback.maxReasoningScore || 100}</span>
+                  </div>
+
                   <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>Menunggu Host melanjutkan pertanyaan...</p>
                 </div>
               )}
