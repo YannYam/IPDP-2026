@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '../store';
 import { socket } from '../socket';
 
+import vid1 from '../assets/1.mp4';
+import vid2 from '../assets/2.mp4';
+import vid3 from '../assets/3.mp4';
+import img4 from '../assets/4.jpeg';
+import img5 from '../assets/5.jpeg';
+import img6 from '../assets/6.png';
+import img7 from '../assets/7.png';
+
 export default function ParticipantFlow() {
   const { sessionCode, teamInfo, teams, sessionState, pretestData, quizData, setSessionCode, setTeamInfo, setTeams, setSessionState, setPretestData, setQuizData } = useStore();
   const [inputSession, setInputSession] = useState('');
@@ -18,19 +26,46 @@ export default function ParticipantFlow() {
 
   const materialChapters = [
     {
-      title: "Bab 1: Banjir dan Dampaknya",
-      image: "https://images.unsplash.com/photo-1542385151-efd9000785a0?auto=format&fit=crop&w=800&q=80",
-      content: "Banjir merupakan bencana alam yang sering terjadi di musim hujan. Dampaknya bisa merusak lingkungan, infrastruktur, dan menyebarkan penyakit. Memahami penyebab banjir adalah langkah pertama untuk mencegahnya."
+      title: "Apa itu banjir?",
+      mediaType: "video",
+      mediaUrl: vid1,
+      content: "Banjir adalah peristiwa ketika air menggenangi suatu wilayah yang biasanya tidak tergenang. Banjir terjadi karena air hujan tidak dapat mengalir atau meresap ke dalam tanah dengan baik sehingga menumpuk di suatu tempat. Di Indonesia, banjir merupakan salah satu bencana yang paling sering terjadi, terutama saat musim hujan."
     },
     {
-      title: "Bab 2: Peran Sampah Terhadap Banjir",
-      image: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80",
-      content: "Pembuangan sampah sembarangan ke selokan dan sungai menyebabkan aliran air tersumbat. Saat volume air meningkat ketika hujan lebat, air tidak dapat mengalir dengan lancar sehingga meluap ke pemukiman."
+      title: "Mengapa Suatu Kawasan Sering Mengalami Banjir?",
+      mediaType: "video",
+      mediaUrl: vid2,
+      content: "Banyak kawasan saat ini berkembang dengan cukup pesat. Banyak lahan terbuka hijau yang berubah menjadi jalan, perumahan, pertokoan, dan bangunan perkotaan lainnya. Akibatnya, air hujan lebih sulit meresap ke dalam tanah dan memicu terjadinya genangan."
     },
     {
-      title: "Bab 3: Solusi dan Pencegahan",
-      image: "https://images.unsplash.com/photo-1563201515-adbe35cbfc45?auto=format&fit=crop&w=800&q=80",
-      content: "Pencegahan dimulai dari kebiasaan kecil: membuang sampah pada tempatnya, menjaga kebersihan saluran air, dan menanam pohon sebagai daerah resapan. Kerja sama masyarakat sangat penting dalam penanggulangan banjir."
+      title: "Penyebab Utama Banjir",
+      mediaType: "video",
+      mediaUrl: vid3,
+      content: "Beberapa penyebab utama banjir antara lain:\nCurah hujan yang tinggi: Saat hujan turun dengan intensitas tinggi dalam waktu yang lama, jumlah air yang turun lebih banyak daripada kemampuan saluran air untuk mengalirkannya.\nSaluran drainase tersumbat sampah: Sampah plastik, botol, daun, dan berbagai jenis sampah lainnya dapat menyumbat saluran air sehingga air meluap ke jalan."
+    },
+    {
+      title: "Resapan & Kapasitas",
+      mediaType: "image",
+      mediaUrl: img4,
+      content: "Selain curah hujan dan penumpukan sampah, penyebab lainnya meliputi:\nBerkurangnya daerah resapan air: Semakin banyak bangunan dan jalan yang menggunakan beton atau aspal menyebabkan air hujan tidak dapat meresap ke dalam tanah.\nKapasitas drainase yang kurang memadai: Jika saluran drainase terlalu kecil atau tidak dirawat dengan baik, air akan lebih mudah meluap ketika hujan deras melanda."
+    },
+    {
+      title: "Dampak Banjir",
+      mediaType: "image",
+      mediaUrl: img5,
+      content: "Banjir tidak hanya menyebabkan genangan air, tetapi juga menimbulkan berbagai dampak yang merugikan, seperti:\n1. Jalan menjadi sulit dilewati.\n2. Aktivitas sekolah dan pekerjaan terganggu.\n3. Kendaraan mengalami kemacetan.\n4. Rumah warga dapat kemasukan air.\n5. Sampah terbawa arus dan mencemari lingkungan.\n6. Meningkatkan risiko munculnya penyakit seperti diare dan penyakit kulit."
+    },
+    {
+      title: "Bagaimana Cara Mencegah Banjir?",
+      mediaType: "image",
+      mediaUrl: img6,
+      content: "Risiko banjir dapat dikurangi apabila masyarakat ikut menjaga lingkungan secara aktif. Beberapa cara yang dapat dilakukan yaitu:\n1. Tidak membuang sampah ke sungai maupun saluran air.\n2. Membersihkan selokan secara rutin.\n3. Menanam pohon dan menjaga ruang terbuka hijau.\n4. Membuat lubang biopori atau sumur resapan agar air lebih mudah masuk ke dalam tanah.\n5. Mengurangi penggunaan plastik sekali pakai sehingga jumlah sampah berkurang."
+    },
+    {
+      title: "Apa yang Bisa Dilakukan Siswa?",
+      mediaType: "image",
+      mediaUrl: img7,
+      content: "Walaupun masih duduk di bangku Siswa, setiap siswa dapat ikut berperan penting dalam mencegah banjir. Contohnya:\n1. Selalu membuang sampah pada tempatnya.\n2. Mengikuti kegiatan kerja bakti di sekolah maupun lingkungan rumah.\n3. Mengingatkan teman agar tidak membuang sampah sembarangan.\n4. Mengurangi penggunaan plastik sekali pakai.\n5. kut menjaga kebersihan selokan di sekitar rumah atau sekolah.\nPerubahan kecil yang dilakukan secara kolektif dapat memberikan dampak yang sangat besar bagi kelestarian lingkungan."
     }
   ];
 
@@ -133,12 +168,12 @@ export default function ParticipantFlow() {
         <h2>Login Tim</h2>
         <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Masukkan kode yang diberikan oleh Host untuk masuk.</p>
         <form onSubmit={handleCheckSession}>
-          <input 
-            className="input-field" 
-            placeholder="ID Sesi" 
-            value={inputSession} 
-            onChange={e => setInputSession(e.target.value)} 
-            required 
+          <input
+            className="input-field"
+            placeholder="ID Sesi"
+            value={inputSession}
+            onChange={e => setInputSession(e.target.value)}
+            required
           />
           <button className="btn btn-accent" type="submit" style={{ width: '100%', marginTop: '1rem', fontSize: '1.1rem' }}>
             Cek Sesi
@@ -153,7 +188,7 @@ export default function ParticipantFlow() {
       <div className="panel" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
         <h2>Pilih Tim</h2>
         <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Pilih tim Anda dari daftar di bawah.</p>
-        
+
         {teams.length === 0 ? (
           <div style={{ background: 'var(--panel-bg)', padding: '2rem', borderRadius: '12px' }}>
             <div className="loading-spinner"></div>
@@ -162,9 +197,9 @@ export default function ParticipantFlow() {
         ) : (
           <div className="grid-list" style={{ textAlign: 'left' }}>
             {teams.map(t => (
-              <div 
-                key={t.code} 
-                className="card" 
+              <div
+                key={t.code}
+                className="card"
                 style={{ cursor: t.hasJoined ? 'not-allowed' : 'pointer', opacity: t.hasJoined ? 0.6 : 1 }}
                 onClick={() => {
                   if (!t.hasJoined) {
@@ -196,7 +231,7 @@ export default function ParticipantFlow() {
       <div className="panel" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
         <h2 style={{ fontSize: '3rem', color: 'var(--accent)', marginBottom: '1rem', textTransform: 'uppercase' }}>🎉 Kuis Selesai! 🎉</h2>
         <p style={{ fontSize: '1.2rem', marginBottom: '3rem' }}>Terima kasih telah berpartisipasi. Silakan lihat hasil klasemen akhir di layar proyektor Host!</p>
-        
+
         {!showJourney ? (
           <>
             <div className="card" style={{ display: 'inline-block', background: 'var(--surface-warm)', border: '4px solid var(--accent)', padding: '2rem 4rem', marginBottom: '2rem' }}>
@@ -299,14 +334,14 @@ export default function ParticipantFlow() {
           {(sessionState === 'lobby' || sessionState === 'waiting_teams') ? 'Menunggu Host...' : 'Pretest Dimulai!'}
         </h3>
         <p style={{ fontSize: '1.2rem', marginTop: '1rem' }}>
-          {(sessionState === 'lobby' || sessionState === 'waiting_teams') 
-            ? 'Host sedang mengatur sesi. Harap tunggu.' 
+          {(sessionState === 'lobby' || sessionState === 'waiting_teams')
+            ? 'Host sedang mengatur sesi. Harap tunggu.'
             : 'Silakan diskusikan pertanyaan Pretest dengan tim Anda!'}
         </p>
         {sessionState === 'waiting_teams' && (
-          <button 
-            className="btn btn-secondary" 
-            onClick={handleChangeTeam} 
+          <button
+            className="btn btn-secondary"
+            onClick={handleChangeTeam}
             style={{ marginTop: '1rem' }}
           >
             Salah pilih tim? Ganti Tim
@@ -318,7 +353,7 @@ export default function ParticipantFlow() {
             <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>{pretestData.question.question}</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '1.5rem' }}>
               {Object.entries(pretestData.question.options).map(([key, value]) => (
-                <button 
+                <button
                   key={key}
                   className={`btn ${selectedPretestAnswer === key ? 'btn-accent' : 'btn-secondary'}`}
                   onClick={() => setSelectedPretestAnswer(key)}
@@ -328,9 +363,9 @@ export default function ParticipantFlow() {
                 </button>
               ))}
             </div>
-            <button 
-              className="btn btn-accent" 
-              onClick={handlePretestDone} 
+            <button
+              className="btn btn-accent"
+              onClick={handlePretestDone}
               disabled={!selectedPretestAnswer}
               style={{ width: '100%', padding: '1rem' }}
             >
@@ -389,22 +424,33 @@ export default function ParticipantFlow() {
       {activeTab === 'material' && (
         <div className="card" style={{ padding: '2rem' }}>
           <h3 style={{ color: 'var(--primary)', marginBottom: '1.5rem' }}>Materi Belajar - {materialChapters[currentChapter].title}</h3>
-          
+
           <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-            <img 
-              src={materialChapters[currentChapter].image} 
-              alt={materialChapters[currentChapter].title} 
-              style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: '12px', border: '1px solid var(--primary)' }}
-            />
+            {materialChapters[currentChapter].mediaType === 'video' ? (
+              <video
+                src={materialChapters[currentChapter].mediaUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: '12px', border: '1px solid var(--primary)' }}
+              />
+            ) : (
+              <img
+                src={materialChapters[currentChapter].mediaUrl}
+                alt={materialChapters[currentChapter].title}
+                style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: '12px', border: '1px solid var(--primary)' }}
+              />
+            )}
           </div>
 
-          <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-main)', marginBottom: '2rem', textAlign: 'left' }}>
+          <div style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-main)', marginBottom: '2rem', textAlign: 'left', whiteSpace: 'pre-line' }}>
             <p>{materialChapters[currentChapter].content}</p>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <button 
-              className="btn btn-secondary" 
+            <button
+              className="btn btn-secondary"
               onClick={() => setCurrentChapter(prev => Math.max(0, prev - 1))}
               disabled={currentChapter === 0}
               style={{ padding: '0.75rem 1.5rem' }}
@@ -414,8 +460,8 @@ export default function ParticipantFlow() {
             <span style={{ color: 'var(--text-muted)', fontWeight: 'bold' }}>
               Bagian {currentChapter + 1} / {materialChapters.length}
             </span>
-            <button 
-              className="btn btn-primary" 
+            <button
+              className="btn btn-primary"
               onClick={() => setCurrentChapter(prev => Math.min(materialChapters.length - 1, prev + 1))}
               disabled={currentChapter === materialChapters.length - 1}
               style={{ padding: '0.75rem 1.5rem' }}
@@ -424,8 +470,8 @@ export default function ParticipantFlow() {
             </button>
           </div>
 
-          <button 
-            className="btn btn-secondary" 
+          <button
+            className="btn btn-secondary"
             onClick={() => {
               setActiveTab('selection');
               setCurrentChapter(0);
@@ -439,22 +485,22 @@ export default function ParticipantFlow() {
 
       {activeTab === 'quiz' && (
         <div className="quiz-container">
-          <button 
-            className="btn btn-secondary" 
+          <button
+            className="btn btn-secondary"
             onClick={() => setActiveTab('selection')}
             style={{ alignSelf: 'flex-start', marginBottom: '1rem' }}
           >
             ← Kembali ke Pilihan
           </button>
-          
+
           {sessionState === 'preparation' ? (
             <div className="waiting-phase">
               <div className="loading-spinner"></div>
               <h3 className="pulse-text">Fase Persiapan</h3>
               <p>Kuis tidak dapat dimulai sampai semua tim menekan tombol Siap.</p>
               <div style={{ marginTop: '2rem' }}>
-                <button 
-                  className={`btn ${teamInfo?.isReady ? 'btn-secondary' : 'btn-accent'}`} 
+                <button
+                  className={`btn ${teamInfo?.isReady ? 'btn-secondary' : 'btn-accent'}`}
                   onClick={handleToggleReady}
                   style={{ fontSize: '1.2rem', padding: '1rem 2rem' }}
                 >
@@ -466,10 +512,10 @@ export default function ParticipantFlow() {
             <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
               <h3 style={{ color: 'var(--accent)', marginBottom: '1rem' }}>Perhatikan Video baik-baik!</h3>
               <p style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>Pertanyaan akan muncul otomatis setelah video selesai.</p>
-              <video 
-                src={quizData.question.mediaUrl} 
-                autoPlay 
-                controls 
+              <video
+                src={quizData.question.mediaUrl}
+                autoPlay
+                controls
                 onEnded={() => setIsVideoPlaying(false)}
                 style={{ width: '100%', borderRadius: '12px', border: '1px solid var(--primary)' }}
               />
@@ -478,24 +524,24 @@ export default function ParticipantFlow() {
           ) : quizData ? (
             <div className="card" style={{ padding: '2rem' }}>
               <h3 style={{ color: 'var(--accent)' }}>Pertanyaan {quizData.index + 1}</h3>
-              
+
               {quizData.question.mediaType === 'image' && quizData.question.mediaUrl && (
                 <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                  <img 
-                    src={quizData.question.mediaUrl} 
-                    alt="Materi Pertanyaan" 
-                    style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: '12px', border: '1px solid var(--primary)' }} 
+                  <img
+                    src={quizData.question.mediaUrl}
+                    alt="Materi Pertanyaan"
+                    style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: '12px', border: '1px solid var(--primary)' }}
                   />
                 </div>
               )}
 
               <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>{quizData.question.question}</p>
-              
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '2rem' }}>
                 {Object.entries(quizData.question.options).map(([key, value]) => (
-                  <button 
-                    key={key} 
-                    className={`btn ${selectedQuizAnswer === key ? 'btn-accent' : 'btn-secondary'}`} 
+                  <button
+                    key={key}
+                    className={`btn ${selectedQuizAnswer === key ? 'btn-accent' : 'btn-secondary'}`}
                     style={{ textAlign: 'left' }}
                     onClick={() => setSelectedQuizAnswer(key)}
                     disabled={quizFeedback !== null}
@@ -507,18 +553,18 @@ export default function ParticipantFlow() {
 
               <h4>Alasan (Wajib)</h4>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Diskusikan dengan tim dan jelaskan mengapa memilih jawaban ini.</p>
-              <textarea 
-                className="input-field" 
-                rows="5" 
+              <textarea
+                className="input-field"
+                rows="5"
                 placeholder="Ketik alasan tim Anda di sini..."
                 value={reasoning}
                 onChange={(e) => setReasoning(e.target.value)}
                 disabled={quizFeedback !== null}
               ></textarea>
-              
+
               {!quizFeedback ? (
-                <button 
-                  className="btn btn-accent" 
+                <button
+                  className="btn btn-accent"
                   disabled={!reasoning.trim() || !selectedQuizAnswer}
                   onClick={handleQuizDone}
                   style={{ marginTop: '1rem', width: '100%' }}
@@ -531,7 +577,7 @@ export default function ParticipantFlow() {
                     {quizFeedback.isCorrect ? 'Benar!' : 'Salah!'}
                   </h3>
                   <p>Jawaban yang benar adalah <strong>{quizFeedback.correctAnswer}</strong>.</p>
-                  
+
                   {/* MC Score */}
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
                     <div style={{ flex: 1, minWidth: '140px', background: 'rgba(0,0,0,0.2)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
@@ -540,7 +586,7 @@ export default function ParticipantFlow() {
                         +{quizFeedback.mcScoreAdded || 0}
                       </div>
                     </div>
-                    
+
                     {/* Reasoning Score */}
                     <div style={{ flex: 1, minWidth: '140px', background: 'rgba(0,0,0,0.2)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Skor Alasan (Essai)</div>
