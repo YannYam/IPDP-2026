@@ -27,7 +27,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install PyTorch (CPU only to save space) and sentence-transformers
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
-RUN pip install --no-cache-dir sentence-transformers
+RUN pip install --no-cache-dir sentence-transformers transformers==4.46.3
 
 # Pre-download the IndoBERT model to bake it into the Docker image (prevents downloading on cold starts)
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('indobenchmark/indobert-base-p1')"
