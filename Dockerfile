@@ -26,7 +26,7 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install PyTorch (CPU only to save space) and sentence-transformers
-RUN pip install --no-cache-dir "torch>=2.6.0" --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir "torch>=2.6.0" --extra-index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir sentence-transformers
 
 # Pre-download the IndoBERT model to bake it into the Docker image (prevents downloading on cold starts)
