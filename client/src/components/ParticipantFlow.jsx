@@ -21,6 +21,7 @@ export default function ParticipantFlow() {
   const [quizFeedback, setQuizFeedback] = useState(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [showJourney, setShowJourney] = useState(false);
+  const [isSubmittingQuiz, setIsSubmittingQuiz] = useState(false);
   const [step, setStep] = useState('login'); // 'login' or 'select_team'
   const [currentChapter, setCurrentChapter] = useState(0);
 
@@ -114,6 +115,7 @@ export default function ParticipantFlow() {
       setSelectedQuizAnswer(null);
       setQuizFeedback(null);
       setReasoning('');
+      setIsSubmittingQuiz(false);
       if (data.question.mediaType === 'video' && data.question.mediaUrl) {
         setIsVideoPlaying(true);
       } else {
@@ -123,6 +125,7 @@ export default function ParticipantFlow() {
 
     socket.on('quiz_answer_result', (result) => {
       setQuizFeedback(result);
+      setIsSubmittingQuiz(false);
     });
 
     return () => {
@@ -159,6 +162,7 @@ export default function ParticipantFlow() {
   };
 
   const handleQuizDone = () => {
+    setIsSubmittingQuiz(true);
     socket.emit('team_submit_quiz', { sessionCode, teamCode: teamInfo.code, answer: selectedQuizAnswer, reasoning });
   };
 
@@ -565,11 +569,18 @@ export default function ParticipantFlow() {
               {!quizFeedback ? (
                 <button
                   className="btn btn-accent"
-                  disabled={!reasoning.trim() || !selectedQuizAnswer}
+                  disabled={!reasoning.trim() || !selectedQuizAnswer || isSubmittingQuiz}
                   onClick={handleQuizDone}
-                  style={{ marginTop: '1rem', width: '100%' }}
+                  style={{ marginTop: '1rem', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
                 >
-                  Kirim Jawaban Tim
+                  {isSubmittingQuiz ? (
+                    <>
+                      <div className="loading-spinner" style={{ width: '20px', height: '20px', margin: 0, border: '3px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }}></div>
+                      <span>Sedang Mengevaluasi (IndoBERT)...</span>
+                    </>
+                  ) : (
+                    'Kirim Jawaban Tim'
+                  )}
                 </button>
               ) : (
                 <div className="card" style={{ marginTop: '1rem', background: quizFeedback.isCorrect ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `2px solid ${quizFeedback.isCorrect ? 'var(--success)' : 'var(--danger)'}` }}>
