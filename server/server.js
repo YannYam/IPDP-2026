@@ -140,7 +140,7 @@ const POSTTEST_QUESTIONS = [
 // Max reasoning score per question
 const REASONING_POINTS_PER_QUESTION = 20;
 
-// Helper: Score reasoning using PySastrawi Python script
+// Helper: Score reasoning using IndoBERT Python script
 function scoreReasoning(studentReasoning, referenceReasoning, maxPoints = REASONING_POINTS_PER_QUESTION) {
   return new Promise((resolve) => {
     const data = JSON.stringify({
@@ -151,7 +151,7 @@ function scoreReasoning(studentReasoning, referenceReasoning, maxPoints = REASON
     const b64 = Buffer.from(data).toString('base64');
     const scriptPath = path.join(__dirname, 'score_reasoning.py');
     
-    execFile('python', [scriptPath, b64], { timeout: 10000 }, (error, stdout, stderr) => {
+    execFile('python', [scriptPath, b64], { timeout: 30000 }, (error, stdout, stderr) => {
       if (error) {
         console.error('Python scoring error:', error.message);
         resolve({ score: 0, matched_keywords: 0, total_keywords: 0 });
@@ -410,7 +410,7 @@ io.on('connection', (socket) => {
         }
         team.quizScore = Math.round((team.correctQuiz / POSTTEST_QUESTIONS.length) * 100) || 0;
 
-        // Score the reasoning essay using PySastrawi
+        // Score the reasoning essay using IndoBERT
         let reasoningResult = { score: 0, matched_keywords: 0, total_keywords: 0 };
         if (reasoning && reasoning.trim() && currentQ?.referenceReasoning) {
           try {

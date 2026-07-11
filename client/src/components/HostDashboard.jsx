@@ -298,7 +298,7 @@ export default function HostDashboard() {
                   <hr style={{ margin: '0.5rem 0', borderColor: '#e5e7eb' }} />
                   <strong>Pilihan Ganda:</strong> {t.quizScore || 0}/100 <br/><span style={{fontSize: '0.8rem'}}>({t.correctQuiz || 0} dari 5 Soal Benar)</span>
                   <hr style={{ margin: '0.5rem 0', borderColor: '#e5e7eb' }} />
-                  <strong>Alasan (Essai):</strong> {t.totalReasoningScore || 0}/{t.maxReasoningScore || 100} <br/><span style={{fontSize: '0.8rem'}}>PySastrawi Scoring</span>
+                  <strong>Alasan (Essai):</strong> {t.totalReasoningScore || 0}/{t.maxReasoningScore || 100} <br/><span style={{fontSize: '0.8rem'}}>IndoBERT Scoring</span>
                 </div>
                 <p style={{ margin: 0, color: 'var(--text-muted)' }}>{t.members.map(m => m.name).join(', ')}</p>
               </div>

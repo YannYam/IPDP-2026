@@ -3,39 +3,28 @@ import json
 import base64
 
 try:
-    from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+    from sentence_transformers import SentenceTransformer, util
 except ImportError:
-    print(json.dumps({"error": "PySastrawi not installed. Run: pip install PySastrawi"}))
+    print(json.dumps({"error": "sentence-transformers not installed. Run: pip install sentence-transformers"}))
     sys.exit(0)
 
 def calculate_score(student_answer, reference_answer, max_points=20):
     """
     Score a student's essay reasoning against a reference answer.
-    Uses PySastrawi stemmer for Indonesian text normalization.
+    Uses sentence-transformers with IndoBERT for semantic similarity.
     Returns a score from 0 to max_points.
     """
-    factory = StemmerFactory()
-    stemmer = factory.create_stemmer()
+    model_name = "indobenchmark/indobert-base-p1"
     
-    # Stem both answers to normalize Indonesian words
-    student_stemmed = stemmer.stem(student_answer.lower()).split()
-    reference_stemmed = stemmer.stem(reference_answer.lower()).split()
+    model = SentenceTransformer(model_name)
     
-    if not reference_stemmed or not student_stemmed:
-        return 0
+    student_emb = model.encode(student_answer, convert_to_tensor=True)
+    ref_emb = model.encode(reference_answer, convert_to_tensor=True)
     
-    # Calculate overlap using set intersection
-    student_set = set(student_stemmed)
-    reference_set = set(reference_stemmed)
+    sim = util.cos_sim(student_emb, ref_emb).item()
+    sim_clamped = max(0.0, min(1.0, sim))
     
-    match_count = len(student_set.intersection(reference_set))
-    
-    if len(reference_set) == 0:
-        return 0
-    
-    # Calculate percentage match then scale to max_points
-    percentage = match_count / len(reference_set)
-    score = round(percentage * max_points, 1)
+    score = round(sim_clamped * max_points, 1)
     
     return min(max_points, max(0, score))
 
@@ -57,18 +46,16 @@ if __name__ == "__main__":
             print(json.dumps({"score": 0, "matched_keywords": 0, "total_keywords": 0}))
             sys.exit(0)
 
-        # Also return keyword match info for transparency
-        factory = StemmerFactory()
-        stemmer = factory.create_stemmer()
-        student_set = set(stemmer.stem(student.lower()).split())
-        reference_set = set(stemmer.stem(reference.lower()).split())
-        matched = len(student_set.intersection(reference_set))
+        # Basic word match for transparency info (since IndoBERT works on embeddings)
+        student_words = set(student.lower().split())
+        reference_words = set(reference.lower().split())
+        matched = len(student_words.intersection(reference_words))
 
         score = calculate_score(student, reference, max_points)
         print(json.dumps({
             "score": score,
             "matched_keywords": matched,
-            "total_keywords": len(reference_set)
+            "total_keywords": len(reference_words)
         }))
     except Exception as e:
         print(json.dumps({"error": str(e), "score": 0}))

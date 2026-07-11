@@ -283,7 +283,7 @@ export default function ParticipantFlow() {
                 <div style={{ fontSize: '2.5rem', color: 'var(--accent)', fontWeight: 'bold' }}>
                   {currentTeamData?.totalReasoningScore || 0}<span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>/{currentTeamData?.maxReasoningScore || 100}</span>
                 </div>
-                <p style={{ fontSize: '0.85rem', margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>PySastrawi Scoring</p>
+                <p style={{ fontSize: '0.85rem', margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>IndoBERT Scoring</p>
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem', marginBottom: 0 }}>(Kualitas Alasan)</p>
               </div>
             </div>
