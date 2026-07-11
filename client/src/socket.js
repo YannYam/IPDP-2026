@@ -1,4 +1,6 @@
 import { io } from 'socket.io-client';
 
-const URL = import.meta.env.PROD ? undefined : 'http://localhost:3002';
+// Replace the URL with your actual deployed backend URL (e.g., from Cloud Run)
+const URL = import.meta.env.PROD ? 'https://your-backend-app-url.run.app' : 'http://localhost:3002';
+
 export const socket = io(URL);
