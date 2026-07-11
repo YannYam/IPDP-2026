@@ -1,6 +1,13 @@
 import sys
 import json
 import base64
+import logging
+import warnings
+
+# Suppress HuggingFace and SentenceTransformer warnings from polluting stdout
+warnings.filterwarnings('ignore')
+logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
+logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 
 try:
     from sentence_transformers import SentenceTransformer, util

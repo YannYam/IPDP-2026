@@ -151,14 +151,16 @@ function scoreReasoning(studentReasoning, referenceReasoning, maxPoints = REASON
     const b64 = Buffer.from(data).toString('base64');
     const scriptPath = path.join(__dirname, 'score_reasoning.py');
     
-    execFile('python', [scriptPath, b64], { timeout: 30000 }, (error, stdout, stderr) => {
+    execFile('python', [scriptPath, b64], { timeout: 120000 }, (error, stdout, stderr) => {
       if (error) {
         console.error('Python scoring error:', error.message);
         resolve({ score: 0, matched_keywords: 0, total_keywords: 0 });
         return;
       }
       try {
-        const result = JSON.parse(stdout.trim());
+        // Extract just the JSON part in case Python printed warnings to stdout
+        const jsonStr = stdout.substring(stdout.indexOf('{'), stdout.lastIndexOf('}') + 1);
+        const result = JSON.parse(jsonStr);
         if (result.error) {
           console.error('Scoring script error:', result.error);
           resolve({ score: 0, matched_keywords: 0, total_keywords: 0 });
