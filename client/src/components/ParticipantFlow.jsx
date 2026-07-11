@@ -576,7 +576,7 @@ export default function ParticipantFlow() {
                   {isSubmittingQuiz ? (
                     <>
                       <div className="loading-spinner" style={{ width: '20px', height: '20px', margin: 0, border: '3px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }}></div>
-                      <span>Sedang Mengevaluasi (IndoBERT)...</span>
+                      <span>Sedang Mengevaluasi...</span>
                     </>
                   ) : (
                     'Kirim Jawaban Tim'
