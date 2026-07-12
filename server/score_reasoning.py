@@ -31,7 +31,15 @@ def calculate_score(student_answer, reference_answer, max_points=20):
     sim = util.cos_sim(student_emb, ref_emb).item()
     sim_clamped = max(0.0, min(1.0, sim))
     
-    score = round(sim_clamped * max_points, 1)
+    # Apply threshold: similarity below this value is considered "irrelevant"
+    # and scores 0. The range [threshold, 1.0] is rescaled to [0, max_points].
+    SIMILARITY_THRESHOLD = 0.5
+    if sim_clamped < SIMILARITY_THRESHOLD:
+        return 0
+    
+    # Rescale: 0.5 -> 0 points, 1.0 -> max_points
+    rescaled = (sim_clamped - SIMILARITY_THRESHOLD) / (1.0 - SIMILARITY_THRESHOLD)
+    score = round(rescaled * max_points, 1)
     
     return min(max_points, max(0, score))
 
