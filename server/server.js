@@ -89,7 +89,20 @@ const POSTTEST_QUESTIONS = [
       D: "Letusan gunung api"
     },
     answer: "A",
-    referenceReasoning: "Banjir di kawasan Telang disebabkan oleh intensitas curah hujan yang tinggi dan sistem drainase yang tidak mampu menampung serta mengalirkan air secara optimal sehingga terjadi genangan."
+    referenceReasoning: "Banjir atau genangan air pada suatu kawasan umumnya dipicu oleh dua faktor utama yang saling berkaitan: volume air yang besar akibat hujan deras (intensitas tinggi) dan sistem pembuangan air (drainase) yang buruk atau tidak memadai sehingga gagal mengalirkan debit air tersebut. Pilihan lainnya tidak memiliki kaitan langsung dengan fenomena genangan air di kawasan tersebut."
+  },
+  {
+    question: "Skenario:\nPerumahan Griya Asri dulunya memiliki banyak taman bermain yang ditumbuhi pepohonan rindang. Namun, setahun terakhir, taman-taman tersebut dibeton seluruhnya dan diubah menjadi area parkir kendaraan. Sejak saat itu, setiap kali hujan deras turun selama lebih dari 1 jam, jalanan di perumahan tersebut selalu tergenang air setinggi lutut orang dewasa, padahal saluran airnya rutin dibersihkan.\n\nPertanyaan:\nMengapa perubahan fungsi taman menjadi area parkir berbeton menyebabkan perumahan tersebut sering tergenang air saat hujan?",
+    options: {
+      A: "Pengecoran jalan dengan beton membuat suhu udara memanas dan memicu hujan lokal yang lebih deras.",
+      B: "Hilangnya pepohonan membuat angin kencang langsung mendorong air hujan ke jalanan.",
+      C: "Permukaan beton menghilangkan area resapan air, sehingga air hujan langsung menjadi aliran permukaan (limpasan).",
+      D: "Akar pohon yang sebelumnya ditebang menyumbat seluruh pipa saluran air di bawah tanah."
+    },
+    answer: "C",
+    referenceReasoning: "Ruang Terbuka Hijau (RTH) yang berisi tanah dan pepohonan berfungsi sebagai area resapan (catchment area). Akar pohon membantu air hujan meresap ke dalam tanah (infiltrasi). Ketika tanah ditutup sepenuhnya oleh beton atau aspal yang kedap air, air hujan tidak dapat meresap dan langsung mengalir di atas permukaan tanah. Jika volume air ini melebihi kapasitas drainase, maka akan terjadi genangan atau banjir.",
+    mediaType: "video",
+    mediaUrl: "/videos/video_soal_2.mp4"
   },
   {
     question: "Apabila saluran drainase dipenuhi sampah plastik, maka kemungkinan yang terjadi adalah....",
@@ -100,7 +113,20 @@ const POSTTEST_QUESTIONS = [
       D: "Tidak ada perubahan"
     },
     answer: "C",
-    referenceReasoning: "Sampah plastik yang menumpuk di saluran drainase akan menyumbat aliran air sehingga air tidak dapat mengalir dengan lancar dan meluap ke permukaan menyebabkan risiko banjir meningkat."
+    referenceReasoning: "Sampah plastik bersifat kedap air dan sulit terurai. Jika menumpuk di dalam saluran drainase, penampang basah saluran akan mengecil dan aliran air akan tersumbat. Akibatnya, air akan meluap keluar dari saluran dan memicu terjadinya genangan atau banjir."
+  },
+  {
+    question: "Skenario:\nSungai Ciliwung di area sektor B tiba-tiba berubah warna menjadi pekat, berbuih, dan mengeluarkan bau menyengat. Beberapa hari kemudian, ratusan ikan ditemukan mati mengambang di permukaan sungai. Diketahui ada beberapa pabrik tekstil yang beroperasi tidak jauh dari bantaran sungai tersebut dan diam-diam membuang sisa pewarna pakaian tanpa diolah terlebih dahulu.\n\nPertanyaan:\nApa penyebab utama kematian massal ikan-ikan di sungai tersebut akibat pembuangan limbah pabrik tekstil?",
+    options: {
+      A: "Ikan-ikan keracunan oleh zat kimia berbahaya yang menurunkan kadar oksigen terlarut di dalam air.",
+      B: "Suara bising dari mesin pabrik membuat ikan stres dan akhirnya mati.",
+      C: "Limbah tekstil membuat suhu air menjadi sangat dingin hingga ikan tidak bisa bertahan hidup.",
+      D: "Limbah cair tersebut membuat ikan berkembang biak terlalu cepat sehingga mereka kehabisan makanan."
+    },
+    answer: "A",
+    referenceReasoning: "Limbah industri cair yang tidak diolah (seperti pewarna kimia dari pabrik tekstil) mengandung bahan beracun dan berbahaya (B3). Ketika masuk ke badan air, zat kimia ini merusak kualitas air, mengubah tingkat keasaman (pH), dan secara drastis menurunkan kadar oksigen terlarut (Dissolved Oxygen) yang sangat dibutuhkan oleh hewan air. Kurangnya oksigen dan tingginya kadar racun (toksisitas) inilah yang menyebabkan kematian massal pada ikan.",
+    mediaType: "video",
+    mediaUrl: "/videos/video_soal_4.mp4"
   },
   {
     question: "Jika Anda melihat genangan air mulai terbentuk di sekitar kampus akibat saluran tersumbat, tindakan yang paling tepat adalah....",
@@ -111,7 +137,20 @@ const POSTTEST_QUESTIONS = [
       D: "Menunggu hujan berhenti"
     },
     answer: "B",
-    referenceReasoning: "Tindakan yang tepat adalah segera membersihkan saluran yang tersumbat atau melaporkan kepada pihak berwenang agar masalah dapat ditangani dengan cepat dan mencegah genangan semakin parah."
+    referenceReasoning: "Tindakan proaktif sangat diperlukan dalam mitigasi bencana banjir. Membersihkan sumbatan secara langsung (jika memungkinkan dan aman) atau segera melaporkan kepada petugas kebersihan/pihak berwenang akan mencegah genangan meluas dan meminimalisir dampak kerugian."
+  },
+  {
+    question: "Skenario:\nDesa Makmur berada di lereng gunung (area hulu), sedangkan Kota Delta berada di dataran rendah di bawahnya (area hilir). Hutan di Desa Makmur banyak yang ditebang secara liar untuk dijadikan lahan pertanian sayur. Pada musim hujan tahun ini, Kota Delta tiba-tiba dilanda banjir bandang yang membawa banyak lumpur dan batang pohon, padahal di kota tersebut hujan tidak terlalu deras.\n\nPertanyaan:\nBagaimana penebangan hutan di area hulu (Desa Makmur) dapat memicu banjir bandang yang parah di area hilir (Kota Delta)?",
+    options: {
+      A: "Penebangan hutan membuat petani membutuhkan lebih banyak air sungai untuk menyiram sayuran, sehingga air tumpah ke hilir.",
+      B: "Tanpa pohon, lereng gunung kehilangan fungsi penahan air, sehingga air hujan meluncur deras ke hilir membawa tanah dan material.",
+      C: "Lahan pertanian sayur menghasilkan gas rumah kaca yang memicu cuaca ekstrem di dataran rendah.",
+      D: "Batang pohon yang ditebang menyumbat matahari sehingga curah hujan di Kota Delta meningkat tajam."
+    },
+    answer: "B",
+    referenceReasoning: "Hutan di daerah hulu bertindak sebagai spons alami yang menyerap dan menahan air hujan. Vegetasi dan akar pohon mengikat tanah agar tidak mudah terkikis. Jika hutan ditebang (deforestasi), air hujan akan langsung meluncur ke dataran yang lebih rendah dengan kecepatan tinggi (banjir bandang). Aliran deras ini juga mengikis lapisan tanah atas (erosi), sehingga banjir yang sampai ke hilir membawa material lumpur dan sisa tebangan kayu yang sangat merusak.",
+    mediaType: "video",
+    mediaUrl: "/videos/video_soal_6.mp4"
   },
   {
     question: "Salah satu cara meningkatkan resapan air di kawasan kampus adalah....",
@@ -122,7 +161,20 @@ const POSTTEST_QUESTIONS = [
       D: "Menutup drainase"
     },
     answer: "B",
-    referenceReasoning: "Memperbanyak ruang terbuka hijau dan lubang resapan biopori membantu air hujan meresap ke dalam tanah sehingga mengurangi volume air permukaan dan risiko banjir di kawasan kampus."
+    referenceReasoning: "Akar tanaman pada ruang terbuka hijau (RTH) membantu menggemburkan tanah sehingga air lebih mudah meresap, sedangkan lubang resapan (seperti biopori) secara langsung memasukkan genangan air permukaan ke dalam tanah. Sebaliknya, jalan beraspal atau beton justru menghalangi air meresap ke dalam tanah."
+  },
+  {
+    question: "Skenario:\nWarga pesisir pantai terbiasa membuang sampah plastik langsung ke sungai yang bermuara ke laut. Bertahun-tahun kemudian, sebuah penelitian dari universitas setempat menemukan bahwa ikan-ikan karang yang sering dikonsumsi warga pesisir ternyata mengandung serpihan plastik berukuran sangat kecil di dalam pencernaannya.\n\nPertanyaan:\nFenomena apa yang sedang terjadi dan mengapa hal tersebut berbahaya bagi manusia yang mengonsumsi ikan tersebut?",
+    options: {
+      A: "Sampah plastik membesar di dalam perut ikan dan membuat manusia tersedak saat memakannya.",
+      B: "Plastik di laut terurai menjadi mikroplastik yang termakan ikan, lalu masuk ke tubuh manusia dan dapat memicu masalah kesehatan jangka panjang.",
+      C: "Ikan karang mengubah plastik menjadi sumber vitamin baru yang sebenarnya menyehatkan bagi manusia.",
+      D: "Serpihan plastik membuat ikan menjadi kebal terhadap penyakit sehingga aman untuk dikonsumsi mentah."
+    },
+    answer: "B",
+    referenceReasoning: "Sampah plastik yang berada di perairan tidak mudah hancur, melainkan terpecah menjadi partikel sangat kecil akibat sinar matahari dan ombak, yang disebut mikroplastik. Mikroplastik ini secara tidak sengaja tertelan oleh ikan dan plankton. Ketika manusia mengonsumsi ikan yang tercemar tersebut, mikroplastik dan zat kimia beracun yang menempel padanya akan berpindah dan menumpuk di tubuh manusia, yang berisiko memicu gangguan pencernaan, keracunan, hingga kanker dalam jangka panjang.",
+    mediaType: "video",
+    mediaUrl: "/videos/video_soal_8.mp4"
   },
   {
     question: "Berdasarkan kondisi banjir di Telang, solusi yang paling efektif dilakukan secara bersama adalah....",
@@ -133,7 +185,20 @@ const POSTTEST_QUESTIONS = [
       D: "Membiarkan genangan mengering sendiri"
     },
     answer: "B",
-    referenceReasoning: "Solusi efektif memerlukan kerja sama masyarakat dengan menjaga kebersihan saluran drainase, mengurangi penggunaan dan pembuangan sampah plastik sembarangan, serta mendukung penambahan area resapan air untuk mengurangi banjir."
+    referenceReasoning: "Pengendalian banjir membutuhkan sinergi dan aksi nyata secara kolektif. Menjaga kebersihan drainase mencegah penyumbatan, mengurangi sampah plastik menekan volume polutan yang berisiko menyumbat saluran, dan menambah daerah resapan memastikan siklus air berjalan dengan baik sehingga limpasan permukaan berkurang drastis. Ini adalah solusi jangka panjang yang komprehensif."
+  },
+  {
+    question: "Skenario:\nKantin SMP Cendekia membuang sisa air cucian piring yang bercampur minyak dan sisa makanan langsung ke selokan sekolah. Akibatnya, selokan menjadi mampat, berbau busuk, dan airnya berwarna kehitaman. Kelompok Karya Ilmiah Remaja (KIR) di sekolah tersebut ingin melakukan inovasi sederhana untuk mengatasi masalah limbah cair kantin ini.\n\nPertanyaan:\nInovasi tepat guna apa yang paling efektif dan ramah lingkungan untuk diterapkan oleh siswa di kantin sekolah tersebut?",
+    options: {
+      A: "Menyiram selokan dengan cairan pemutih pakaian dalam jumlah besar setiap hari agar warnanya menjadi jernih.",
+      B: "Menutup rapat selokan kantin dengan semen permanen agar baunya tidak menyebar ke kelas.",
+      C: "Memasang grease trap (penyaring lemak) pada pipa pembuangan dan menggunakan eco-enzyme dari kulit buah untuk menjernihkan air.",
+      D: "Mengalirkan air cucian piring langsung ke lapangan rumput sekolah agar meresap sendiri."
+    },
+    answer: "C",
+    referenceReasoning: "Limbah kantin didominasi oleh lemak/minyak dan sisa bahan organik yang sulit terurai dengan cepat di perairan. Menggunakan alat penyaring lemak (grease trap) akan memisahkan minyak dari air kotor sebelum masuk ke selokan. Sementara itu, penggunaan eco-enzyme (cairan hasil fermentasi sisa bahan organik) adalah cara biologis yang ramah lingkungan untuk membantu memecah polutan organik dalam air limbah dan menghilangkan bau tidak sedap, tanpa menggunakan bahan kimia berbahaya seperti pemutih.",
+    mediaType: "video",
+    mediaUrl: "/videos/video_soal_10.mp4"
   }
 ];
 
