@@ -459,8 +459,8 @@ io.on('connection', (socket) => {
     if (sessions[sessionCode]) {
       const session = sessions[sessionCode];
       const team = session.teams.find(t => t.code === teamCode);
-      if (team && !team.quizCompleted) {
-        team.quizCompleted = true;
+      if (team && !team.quizCompleted && !team.isScoring) {
+        team.isScoring = true;
         team.lastAnswer = answer;
         team.lastReasoning = reasoning;
         const currentQ = POSTTEST_QUESTIONS[session.currentQuizIndex];
@@ -516,6 +516,10 @@ io.on('connection', (socket) => {
           totalReasoningScore: team.totalReasoningScore,
           maxReasoningScore: team.maxReasoningScore
         });
+        
+        team.isScoring = false;
+        team.quizCompleted = true;
+        
         io.to(sessionCode).emit('readiness_update', session.teams);
       }
     }
@@ -527,7 +531,10 @@ io.on('connection', (socket) => {
       const session = sessions[sessionCode];
       if (session.currentQuizIndex < POSTTEST_QUESTIONS.length - 1) {
         session.currentQuizIndex += 1;
-        session.teams.forEach(t => t.quizCompleted = false);
+        session.teams.forEach(t => {
+          t.quizCompleted = false;
+          t.isScoring = false;
+        });
         
         io.to(sessionCode).emit('readiness_update', session.teams);
         io.to(sessionCode).emit('quiz_question_update', {
