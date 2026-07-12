@@ -621,8 +621,9 @@ export default function ParticipantFlow() {
               )}
             </div>
           ) : (
-            <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-              Memuat Pertanyaan Kuis...
+            <div className="card waiting-phase" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
+              <div className="loading-spinner"></div>
+              <h3 className="pulse-text" style={{ marginTop: '1rem', color: 'var(--secondary)' }}>Memuat Pertanyaan Kuis...</h3>
             </div>
           )}
         </div>

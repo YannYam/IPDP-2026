@@ -281,6 +281,31 @@ io.on('connection', (socket) => {
             total: PRETEST_QUESTIONS.length,
             question: PRETEST_QUESTIONS[sessions[sessionCode].currentPretestIndex]
           });
+        } else if (sessions[sessionCode].state === 'quiz') {
+          const currentIndex = sessions[sessionCode].currentQuizIndex;
+          socket.emit('quiz_question_update', {
+            index: currentIndex,
+            total: POSTTEST_QUESTIONS.length,
+            question: sanitizeQuestion(POSTTEST_QUESTIONS[currentIndex])
+          });
+          
+          if (team.quizCompleted && team.reasoningDetails && team.reasoningDetails.length > 0) {
+            const currentQ = POSTTEST_QUESTIONS[currentIndex];
+            const isCorrect = team.lastAnswer === currentQ.answer;
+            const mcScore = isCorrect ? Math.round((1 / POSTTEST_QUESTIONS.length) * 100) : 0;
+            const lastReasoningDetail = team.reasoningDetails[team.reasoningDetails.length - 1];
+            socket.emit('quiz_answer_result', {
+              isCorrect,
+              correctAnswer: currentQ.answer,
+              mcScoreAdded: mcScore,
+              reasoningScore: lastReasoningDetail.score,
+              reasoningMaxScore: lastReasoningDetail.maxScore,
+              matchedKeywords: lastReasoningDetail.matchedKeywords,
+              totalKeywords: lastReasoningDetail.totalKeywords,
+              totalReasoningScore: team.totalReasoningScore,
+              maxReasoningScore: team.maxReasoningScore
+            });
+          }
         }
       } else {
         socket.emit('error', 'Invalid Team Code');
