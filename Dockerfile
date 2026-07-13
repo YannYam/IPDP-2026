@@ -22,11 +22,12 @@ RUN pip install --no-cache-dir sentence-transformers
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('indobenchmark/indobert-base-p1')"
 
 # Install server dependencies
-COPY package*.json ./
+WORKDIR /app/server
+COPY server/package*.json ./
 RUN npm install --production
 
 # Copy server source code
-COPY . .
+COPY server/ ./
 
 # Expose port 3002
 EXPOSE 3002
