@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const { execFile } = require('child_process');
@@ -18,9 +17,6 @@ const io = new Server(server, {
 
 app.use(cors());
 app.use(express.json());
-
-// Serve static files from the React frontend app
-app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // In-memory store for quick lookups
 const sessions = {}; 
@@ -587,11 +583,6 @@ io.on('connection', (socket) => {
       }
     }
   });
-});
-
-// Anything that doesn't match the above, send back index.html
-app.use((req, res, next) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 const PORT = process.env.PORT || 3002;
