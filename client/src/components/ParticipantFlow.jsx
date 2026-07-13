@@ -599,7 +599,7 @@ export default function ParticipantFlow() {
                     </div>
 
                     {/* Reasoning Score */}
-                    <div style={{ flex: 1, minWidth: '140px', background: 'rgba(0,0,0,0.2)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
+                    <div style={{ flex: 1, minWidth: '140px', background: 'rgba(0,0,0,0.1)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Skor Alasan (Essai)</div>
                       <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--accent)' }}>
                         +{quizFeedback.reasoningScore || 0}<span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>/{quizFeedback.reasoningMaxScore || 20}</span>
