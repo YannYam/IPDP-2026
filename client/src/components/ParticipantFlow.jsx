@@ -616,6 +616,21 @@ export default function ParticipantFlow() {
                     <span style={{ fontWeight: 'bold', color: 'var(--accent)', fontSize: '1.1rem' }}>{quizFeedback.totalReasoningScore || 0}/{quizFeedback.maxReasoningScore || 100}</span>
                   </div>
 
+                  {/* Total Skor Pilihan Ganda */}
+                  <div style={{ marginTop: '0.75rem', background: 'rgba(0,0,0,0.15)', borderRadius: '10px', padding: '0.75rem 1rem', textAlign: 'center' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Total Skor Pilihan Ganda: </span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--success)', fontSize: '1.1rem' }}>{quizFeedback.quizScore || 0}/100</span>
+                  </div>
+
+                  {/* Total Skor Keseluruhan */}
+                  <div style={{ marginTop: '0.75rem', background: 'rgba(0,0,0,0.1)', borderRadius: '10px', padding: '1rem', textAlign: 'center', border: '2px solid var(--accent)' }}>
+                    <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>Total Skor Keseluruhan: </span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--accent-hover)', fontSize: '1.3rem' }}>{quizFeedback.totalScore || 0}/{100 + 100 + (quizFeedback.maxReasoningScore || 100)}</span>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+                      Pretest ({quizFeedback.pretestScore || 0}) + PG ({quizFeedback.quizScore || 0}) + Alasan ({quizFeedback.totalReasoningScore || 0})
+                    </div>
+                  </div>
+
                   <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>Menunggu Host melanjutkan pertanyaan...</p>
                 </div>
               )}

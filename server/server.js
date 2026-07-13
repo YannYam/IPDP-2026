@@ -299,7 +299,10 @@ io.on('connection', (socket) => {
               matchedKeywords: lastReasoningDetail.matchedKeywords,
               totalKeywords: lastReasoningDetail.totalKeywords,
               totalReasoningScore: team.totalReasoningScore,
-              maxReasoningScore: team.maxReasoningScore
+              maxReasoningScore: team.maxReasoningScore,
+              quizScore: team.quizScore || 0,
+              totalScore: team.score || 0,
+              pretestScore: team.pretestScore || 0
             });
           }
         }
@@ -535,7 +538,10 @@ io.on('connection', (socket) => {
           matchedKeywords: reasoningResult.matched_keywords,
           totalKeywords: reasoningResult.total_keywords,
           totalReasoningScore: team.totalReasoningScore,
-          maxReasoningScore: team.maxReasoningScore
+          maxReasoningScore: team.maxReasoningScore,
+          quizScore: team.quizScore || 0,
+          totalScore: team.score || 0,
+          pretestScore: team.pretestScore || 0
         });
         
         team.isScoring = false;
