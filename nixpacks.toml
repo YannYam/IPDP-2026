@@ -1,0 +1,30 @@
+[phases.setup]
+# Install Node.js 22 and Python 3.11
+nixPkgs = ["nodejs_22", "python311", "gcc", "stdenv.cc.cc.lib"]
+
+[phases.install]
+cmds = [
+    # 1. Install Node.js server dependencies
+    "cd server && npm install",
+    
+    # 2. Create a Python virtual environment
+    "python -m venv /app/venv",
+    
+    # 3. Install PyTorch (CPU version to save massive amounts of disk space and memory)
+    ". /app/venv/bin/activate && pip install torch --index-url https://download.pytorch.org/whl/cpu",
+    
+    # 4. Install sentence-transformers for IndoBERT
+    ". /app/venv/bin/activate && pip install sentence-transformers"
+]
+
+[phases.build]
+cmds = [
+    # Pre-download the IndoBERT model during the build phase
+    # This prevents the server from downloading it on every cold start
+    ". /app/venv/bin/activate && python -c \"from sentence_transformers import SentenceTransformer; SentenceTransformer('indobenchmark/indobert-base-p1')\""
+]
+
+[start]
+# Activate the Python environment and start the Node server
+# This ensures that execFile('python') in server.js uses the correct Python
+cmd = ". /app/venv/bin/activate && cd server && node server.js"
