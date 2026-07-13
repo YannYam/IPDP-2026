@@ -24,17 +24,17 @@ const sessions = {};
 
 const PRETEST_QUESTIONS = [
   {
-    question: "Banjir yang sering terjadi di kawasan Telang sekitar Universitas Trunojoyo Madura umumnya disebabkan oleh....",
+    question: "Penyebab utama banjir di suatu wilayah umumnya adalah...",
     options: {
       A: "Letusan gunung berapi",
-      B: "Curah hujan tinggi yang disertai sistem drainase yang kurang optimal",
+      B: "Curah hujan tinggi yang disertai sistem drainase kurang optimal",
       C: "Gempa bumi",
-      D: "Kebakaran hutan"
+      D: "Angin puting beliung"
     },
     answer: "B"
   },
   {
-    question: "Salah satu aktivitas manusia yang dapat memperparah banjir di kawasan Telang adalah....",
+    question: "Salah satu aktivitas manusia yang dapat memperparah banjir adalah...",
     options: {
       A: "Menanam pohon",
       B: "Membersihkan saluran drainase",
@@ -44,27 +44,27 @@ const PRETEST_QUESTIONS = [
     answer: "C"
   },
   {
-    question: "Dampak banjir yang paling mungkin dialami mahasiswa Universitas Trunojoyo Madura adalah....",
+    question: "Dampak banjir terhadap aktivitas masyarakat adalah...",
     options: {
-      A: "Jalan menuju kampus tergenang sehingga aktivitas belajar terganggu",
-      B: "Nilai kuliah meningkat",
-      C: "Kampus menjadi lebih luas",
-      D: "Cuaca menjadi lebih dingin"
+      A: "Transportasi terganggu",
+      B: "Nilai ekonomi meningkat",
+      C: "Cuaca menjadi lebih dingin",
+      D: "Sungai menjadi lebih jernih"
     },
     answer: "A"
   },
   {
     question: "Mengapa pembangunan yang pesat dapat meningkatkan risiko banjir?",
     options: {
-      A: "Karena jumlah pohon semakin banyak",
-      B: "Karena permukaan tanah menjadi kedap air sehingga air hujan sulit meresap",
-      C: "Karena hujan menjadi berhenti",
-      D: "Karena sungai menjadi lebih dalam"
+      A: "Jumlah pohon semakin banyak",
+      B: "Permukaan tanah menjadi kedap air sehingga air hujan sulit meresap",
+      C: "Hujan menjadi berhenti",
+      D: "Sungai menjadi lebih dalam"
     },
     answer: "B"
   },
   {
-    question: "Tindakan yang paling tepat untuk membantu mengurangi banjir di lingkungan kampus adalah....",
+    question: "Tindakan yang paling tepat untuk membantu mengurangi banjir adalah...",
     options: {
       A: "Menutup saluran drainase",
       B: "Menjaga kebersihan saluran air dan tidak membuang sampah sembarangan",
@@ -72,20 +72,70 @@ const PRETEST_QUESTIONS = [
       D: "Menimbun saluran air"
     },
     answer: "B"
+  },
+  {
+    question: "Fungsi utama saluran drainase adalah...",
+    options: {
+      A: "Menyimpan air hujan",
+      B: "Mengalirkan kelebihan air agar tidak terjadi genangan",
+      C: "Menambah volume air sungai",
+      D: "Mengurangi curah hujan"
+    },
+    answer: "B"
+  },
+  {
+    question: "Salah satu akibat jika saluran drainase tersumbat adalah...",
+    options: {
+      A: "Air mengalir lebih cepat",
+      B: "Terjadi genangan dan banjir",
+      C: "Air lebih mudah meresap",
+      D: "Tidak ada perubahan"
+    },
+    answer: "B"
+  },
+  {
+    question: "Daerah yang paling berisiko mengalami banjir adalah...",
+    options: {
+      A: "Daerah dengan banyak daerah resapan",
+      B: "Daerah dataran rendah dengan drainase buruk",
+      C: "Daerah pegunungan",
+      D: "Daerah yang banyak pepohonan"
+    },
+    answer: "B"
+  },
+  {
+    question: "Salah satu upaya mitigasi banjir adalah...",
+    options: {
+      A: "Menebang pohon",
+      B: "Membuat sumur resapan atau biopori",
+      C: "Menutup sungai",
+      D: "Membuang sampah ke sungai"
+    },
+    answer: "B"
+  },
+  {
+    question: "Kesadaran masyarakat sangat penting dalam mengurangi banjir karena...",
+    options: {
+      A: "Pemerintah tidak memiliki peran",
+      B: "Perilaku masyarakat memengaruhi kondisi lingkungan dan saluran air",
+      C: "Hujan dapat dihentikan",
+      D: "Sungai akan hilang"
+    },
+    answer: "B"
   }
 ];
 
 const POSTTEST_QUESTIONS = [
   {
-    question: "Setelah mempelajari penyebab banjir di Telang, faktor yang paling memengaruhi terjadinya genangan adalah....",
+    question: "Faktor utama yang paling memengaruhi terjadinya banjir adalah...",
     options: {
-      A: "Intensitas hujan yang tinggi disertai drainase yang tidak mampu mengalirkan air secara optimal",
+      A: "Intensitas hujan tinggi disertai drainase yang kurang baik",
       B: "Aktivitas nelayan",
       C: "Perubahan arah angin",
       D: "Letusan gunung api"
     },
     answer: "A",
-    referenceReasoning: "Banjir atau genangan air pada suatu kawasan umumnya dipicu oleh dua faktor utama yang saling berkaitan: volume air yang besar akibat hujan deras (intensitas tinggi) dan sistem pembuangan air (drainase) yang buruk atau tidak memadai sehingga gagal mengalirkan debit air tersebut. Pilihan lainnya tidak memiliki kaitan langsung dengan fenomena genangan air di kawasan tersebut."
+    referenceReasoning: "Banjir biasanya terjadi karena dua hal yang saling berhubungan: hujan yang sangat deras (intensitas tinggi) dan saluran air (drainase) yang tidak berfungsi dengan baik, sehingga air tidak bisa mengalir dan akhirnya meluap. Pilihan lain seperti aktivitas nelayan, perubahan arah angin, dan letusan gunung api tidak ada hubungannya dengan penyebab banjir."
   },
   {
     question: "Skenario:\nPerumahan Griya Asri dulunya memiliki banyak taman bermain yang ditumbuhi pepohonan rindang. Namun, setahun terakhir, taman-taman tersebut dibeton seluruhnya dan diubah menjadi area parkir kendaraan. Sejak saat itu, setiap kali hujan deras turun selama lebih dari 1 jam, jalanan di perumahan tersebut selalu tergenang air setinggi lutut orang dewasa, padahal saluran airnya rutin dibersihkan.\n\nPertanyaan:\nMengapa perubahan fungsi taman menjadi area parkir berbeton menyebabkan perumahan tersebut sering tergenang air saat hujan?",
@@ -96,20 +146,20 @@ const POSTTEST_QUESTIONS = [
       D: "Akar pohon yang sebelumnya ditebang menyumbat seluruh pipa saluran air di bawah tanah."
     },
     answer: "C",
-    referenceReasoning: "Ruang Terbuka Hijau (RTH) yang berisi tanah dan pepohonan berfungsi sebagai area resapan (catchment area). Akar pohon membantu air hujan meresap ke dalam tanah (infiltrasi). Ketika tanah ditutup sepenuhnya oleh beton atau aspal yang kedap air, air hujan tidak dapat meresap dan langsung mengalir di atas permukaan tanah. Jika volume air ini melebihi kapasitas drainase, maka akan terjadi genangan atau banjir.",
+    referenceReasoning: "Taman yang berisi tanah dan pohon berfungsi seperti spons yang bisa menyerap air hujan. Akar pohon membantu air meresap ke dalam tanah. Tapi kalau tanah ditutup seluruhnya oleh beton yang tidak bisa menyerap air, maka air hujan tidak bisa meresap dan langsung menggenang di permukaan. Kalau jumlah air yang menggenang terlalu banyak dan saluran air tidak mampu menampung, maka terjadilah banjir.",
     mediaType: "video",
     mediaUrl: "/videos/video_soal_2.mp4"
   },
   {
-    question: "Apabila saluran drainase dipenuhi sampah plastik, maka kemungkinan yang terjadi adalah....",
+    question: "Apabila saluran drainase dipenuhi sampah plastik, kemungkinan yang terjadi adalah...",
     options: {
       A: "Air mengalir lebih cepat",
-      B: "Air hujan mudah meresap ke tanah",
+      B: "Air hujan mudah meresap",
       C: "Aliran air terhambat sehingga risiko banjir meningkat",
       D: "Tidak ada perubahan"
     },
     answer: "C",
-    referenceReasoning: "Sampah plastik bersifat kedap air dan sulit terurai. Jika menumpuk di dalam saluran drainase, penampang basah saluran akan mengecil dan aliran air akan tersumbat. Akibatnya, air akan meluap keluar dari saluran dan memicu terjadinya genangan atau banjir."
+    referenceReasoning: "Sampah plastik itu tidak bisa menyerap air dan sangat sulit hancur. Kalau sampah plastik menumpuk di saluran air, maka saluran jadi menyempit dan air tidak bisa mengalir dengan lancar. Akibatnya, air akan meluap keluar dari saluran dan menyebabkan banjir atau genangan di sekitarnya."
   },
   {
     question: "Skenario:\nSungai Ciliwung di area sektor B tiba-tiba berubah warna menjadi pekat, berbuih, dan mengeluarkan bau menyengat. Beberapa hari kemudian, ratusan ikan ditemukan mati mengambang di permukaan sungai. Diketahui ada beberapa pabrik tekstil yang beroperasi tidak jauh dari bantaran sungai tersebut dan diam-diam membuang sisa pewarna pakaian tanpa diolah terlebih dahulu.\n\nPertanyaan:\nApa penyebab utama kematian massal ikan-ikan di sungai tersebut akibat pembuangan limbah pabrik tekstil?",
@@ -120,20 +170,20 @@ const POSTTEST_QUESTIONS = [
       D: "Limbah cair tersebut membuat ikan berkembang biak terlalu cepat sehingga mereka kehabisan makanan."
     },
     answer: "A",
-    referenceReasoning: "Limbah industri cair yang tidak diolah (seperti pewarna kimia dari pabrik tekstil) mengandung bahan beracun dan berbahaya (B3). Ketika masuk ke badan air, zat kimia ini merusak kualitas air, mengubah tingkat keasaman (pH), dan secara drastis menurunkan kadar oksigen terlarut (Dissolved Oxygen) yang sangat dibutuhkan oleh hewan air. Kurangnya oksigen dan tingginya kadar racun (toksisitas) inilah yang menyebabkan kematian massal pada ikan.",
+    referenceReasoning: "Limbah pabrik tekstil yang langsung dibuang ke sungai tanpa diolah mengandung zat kimia beracun yang sangat berbahaya. Zat kimia ini mencemari air sungai, membuat air menjadi kotor, dan mengurangi oksigen yang ada di dalam air. Padahal, ikan sangat membutuhkan oksigen di dalam air untuk bernapas. Karena oksigen berkurang dan racunnya tinggi, ikan-ikan tidak bisa bertahan hidup dan akhirnya mati secara massal.",
     mediaType: "video",
     mediaUrl: "/videos/video_soal_4.mp4"
   },
   {
-    question: "Jika Anda melihat genangan air mulai terbentuk di sekitar kampus akibat saluran tersumbat, tindakan yang paling tepat adalah....",
+    question: "Jika terjadi banjir, tindakan yang tepat adalah...",
     options: {
-      A: "Membiarkannya",
-      B: "Membersihkan atau melaporkan kepada pihak yang berwenang",
-      C: "Menambah sampah ke saluran",
-      D: "Menunggu hujan berhenti"
+      A: "Bermain di genangan air",
+      B: "Mengabaikan informasi dari petugas",
+      C: "Mengikuti arahan petugas dan mengutamakan keselamatan",
+      D: "Membuang sampah ke sungai"
     },
-    answer: "B",
-    referenceReasoning: "Tindakan proaktif sangat diperlukan dalam mitigasi bencana banjir. Membersihkan sumbatan secara langsung (jika memungkinkan dan aman) atau segera melaporkan kepada petugas kebersihan/pihak berwenang akan mencegah genangan meluas dan meminimalisir dampak kerugian."
+    answer: "C",
+    referenceReasoning: "Saat terjadi banjir, hal yang paling penting adalah menjaga keselamatan diri sendiri dan orang lain. Cara terbaik adalah mengikuti arahan dari petugas seperti tim SAR atau petugas kelurahan, karena mereka sudah terlatih dan tahu langkah yang aman. Bermain di genangan air sangat berbahaya karena bisa terkena penyakit atau terseret arus. Mengabaikan informasi dan membuang sampah justru memperburuk keadaan."
   },
   {
     question: "Skenario:\nDesa Makmur berada di lereng gunung (area hulu), sedangkan Kota Delta berada di dataran rendah di bawahnya (area hilir). Hutan di Desa Makmur banyak yang ditebang secara liar untuk dijadikan lahan pertanian sayur. Pada musim hujan tahun ini, Kota Delta tiba-tiba dilanda banjir bandang yang membawa banyak lumpur dan batang pohon, padahal di kota tersebut hujan tidak terlalu deras.\n\nPertanyaan:\nBagaimana penebangan hutan di area hulu (Desa Makmur) dapat memicu banjir bandang yang parah di area hilir (Kota Delta)?",
@@ -144,20 +194,20 @@ const POSTTEST_QUESTIONS = [
       D: "Batang pohon yang ditebang menyumbat matahari sehingga curah hujan di Kota Delta meningkat tajam."
     },
     answer: "B",
-    referenceReasoning: "Hutan di daerah hulu bertindak sebagai spons alami yang menyerap dan menahan air hujan. Vegetasi dan akar pohon mengikat tanah agar tidak mudah terkikis. Jika hutan ditebang (deforestasi), air hujan akan langsung meluncur ke dataran yang lebih rendah dengan kecepatan tinggi (banjir bandang). Aliran deras ini juga mengikis lapisan tanah atas (erosi), sehingga banjir yang sampai ke hilir membawa material lumpur dan sisa tebangan kayu yang sangat merusak.",
+    referenceReasoning: "Hutan di daerah pegunungan (hulu) bekerja seperti spons raksasa yang menyerap dan menahan air hujan. Akar-akar pohon juga menjaga tanah agar tidak mudah longsor. Kalau hutannya ditebang, tidak ada lagi yang menahan air hujan, sehingga air langsung meluncur deras ke daerah yang lebih rendah (hilir). Air yang meluncur cepat ini juga membawa tanah dan batang pohon, inilah yang disebut banjir bandang dan sangat berbahaya bagi warga di bawahnya.",
     mediaType: "video",
     mediaUrl: "/videos/video_soal_6.mp4"
   },
   {
-    question: "Salah satu cara meningkatkan resapan air di kawasan kampus adalah....",
+    question: "Salah satu manfaat adanya daerah resapan air adalah...",
     options: {
-      A: "Menambah area beraspal",
-      B: "Memperbanyak ruang terbuka hijau dan lubang resapan",
-      C: "Menutup seluruh lahan kosong",
-      D: "Menutup drainase"
+      A: "Mempercepat banjir",
+      B: "Membantu air hujan meresap ke tanah sehingga mengurangi genangan",
+      C: "Mengurangi jumlah sungai",
+      D: "Menambah pencemaran air"
     },
     answer: "B",
-    referenceReasoning: "Akar tanaman pada ruang terbuka hijau (RTH) membantu menggemburkan tanah sehingga air lebih mudah meresap, sedangkan lubang resapan (seperti biopori) secara langsung memasukkan genangan air permukaan ke dalam tanah. Sebaliknya, jalan beraspal atau beton justru menghalangi air meresap ke dalam tanah."
+    referenceReasoning: "Daerah resapan air adalah area yang bisa menyerap air hujan ke dalam tanah, misalnya taman, kebun, atau lahan yang banyak pohonnya. Kalau air hujan bisa meresap ke tanah, maka air yang menggenang di permukaan jadi berkurang, sehingga risiko banjir juga ikut berkurang. Pilihan lain salah karena daerah resapan justru mencegah banjir, bukan mempercepat, dan tidak ada hubungannya dengan mengurangi sungai atau mencemari air."
   },
   {
     question: "Skenario:\nWarga pesisir pantai terbiasa membuang sampah plastik langsung ke sungai yang bermuara ke laut. Bertahun-tahun kemudian, sebuah penelitian dari universitas setempat menemukan bahwa ikan-ikan karang yang sering dikonsumsi warga pesisir ternyata mengandung serpihan plastik berukuran sangat kecil di dalam pencernaannya.\n\nPertanyaan:\nFenomena apa yang sedang terjadi dan mengapa hal tersebut berbahaya bagi manusia yang mengonsumsi ikan tersebut?",
@@ -168,20 +218,20 @@ const POSTTEST_QUESTIONS = [
       D: "Serpihan plastik membuat ikan menjadi kebal terhadap penyakit sehingga aman untuk dikonsumsi mentah."
     },
     answer: "B",
-    referenceReasoning: "Sampah plastik yang berada di perairan tidak mudah hancur, melainkan terpecah menjadi partikel sangat kecil akibat sinar matahari dan ombak, yang disebut mikroplastik. Mikroplastik ini secara tidak sengaja tertelan oleh ikan dan plankton. Ketika manusia mengonsumsi ikan yang tercemar tersebut, mikroplastik dan zat kimia beracun yang menempel padanya akan berpindah dan menumpuk di tubuh manusia, yang berisiko memicu gangguan pencernaan, keracunan, hingga kanker dalam jangka panjang.",
+    referenceReasoning: "Sampah plastik di laut tidak mudah hancur, tapi lama-kelamaan pecah menjadi potongan yang sangat kecil karena terkena sinar matahari dan ombak. Potongan kecil ini disebut mikroplastik. Ikan-ikan di laut tanpa sengaja memakan mikroplastik ini. Nah, kalau manusia memakan ikan yang sudah mengandung mikroplastik, maka plastik dan zat beracunnya ikut masuk ke tubuh manusia. Dalam jangka panjang, hal ini bisa menyebabkan gangguan pencernaan, keracunan, bahkan penyakit serius seperti kanker.",
     mediaType: "video",
     mediaUrl: "/videos/video_soal_8.mp4"
   },
   {
-    question: "Berdasarkan kondisi banjir di Telang, solusi yang paling efektif dilakukan secara bersama adalah....",
+    question: "Cara yang paling efektif mengurangi risiko banjir di lingkungan sekitar adalah...",
     options: {
-      A: "Menunggu bantuan pemerintah saja",
-      B: "Menjaga kebersihan drainase, mengurangi sampah plastik, dan mendukung penambahan daerah resapan",
-      C: "Menutup seluruh saluran air",
-      D: "Membiarkan genangan mengering sendiri"
+      A: "Menutup saluran air",
+      B: "Menjaga kebersihan lingkungan dan saluran drainase",
+      C: "Membuang sampah ke sungai",
+      D: "Menebang pohon"
     },
     answer: "B",
-    referenceReasoning: "Pengendalian banjir membutuhkan sinergi dan aksi nyata secara kolektif. Menjaga kebersihan drainase mencegah penyumbatan, mengurangi sampah plastik menekan volume polutan yang berisiko menyumbat saluran, dan menambah daerah resapan memastikan siklus air berjalan dengan baik sehingga limpasan permukaan berkurang drastis. Ini adalah solusi jangka panjang yang komprehensif."
+    referenceReasoning: "Cara paling efektif untuk mengurangi risiko banjir adalah menjaga kebersihan lingkungan dan saluran drainase. Kalau saluran air bersih dari sampah, air hujan bisa mengalir lancar dan tidak meluap. Menutup saluran air justru membuat air tidak bisa mengalir, membuang sampah ke sungai akan menyumbat aliran sungai, dan menebang pohon menghilangkan penyerap air alami sehingga justru memperparah banjir."
   },
   {
     question: "Skenario:\nKantin SMP Cendekia membuang sisa air cucian piring yang bercampur minyak dan sisa makanan langsung ke selokan sekolah. Akibatnya, selokan menjadi mampat, berbau busuk, dan airnya berwarna kehitaman. Kelompok Karya Ilmiah Remaja (KIR) di sekolah tersebut ingin melakukan inovasi sederhana untuk mengatasi masalah limbah cair kantin ini.\n\nPertanyaan:\nInovasi tepat guna apa yang paling efektif dan ramah lingkungan untuk diterapkan oleh siswa di kantin sekolah tersebut?",
@@ -192,7 +242,7 @@ const POSTTEST_QUESTIONS = [
       D: "Mengalirkan air cucian piring langsung ke lapangan rumput sekolah agar meresap sendiri."
     },
     answer: "C",
-    referenceReasoning: "Limbah kantin didominasi oleh lemak/minyak dan sisa bahan organik yang sulit terurai dengan cepat di perairan. Menggunakan alat penyaring lemak (grease trap) akan memisahkan minyak dari air kotor sebelum masuk ke selokan. Sementara itu, penggunaan eco-enzyme (cairan hasil fermentasi sisa bahan organik) adalah cara biologis yang ramah lingkungan untuk membantu memecah polutan organik dalam air limbah dan menghilangkan bau tidak sedap, tanpa menggunakan bahan kimia berbahaya seperti pemutih.",
+    referenceReasoning: "Air cucian piring dari kantin mengandung banyak minyak dan sisa makanan yang susah larut di air. Grease trap adalah alat penyaring yang bisa memisahkan minyak dari air kotor sebelum air masuk ke selokan, jadi selokan tidak tersumbat oleh minyak. Sedangkan eco-enzyme adalah cairan alami yang dibuat dari fermentasi kulit buah, yang bisa membantu mengurai kotoran di air dan menghilangkan bau busuk tanpa menggunakan bahan kimia berbahaya. Cara ini ramah lingkungan dan bisa dilakukan oleh siswa.",
     mediaType: "video",
     mediaUrl: "/videos/video_soal_10.mp4"
   }
